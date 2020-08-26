@@ -1,0 +1,8 @@
+*
+!.gitignore
+!.gitmodules
+!CMakeLists.txt
+!libs
+!libs/**
+!src
+!src/**
