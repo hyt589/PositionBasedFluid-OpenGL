@@ -1,6 +1,7 @@
 *
 !.gitignore
 !.gitmodules
+!config.json
 !CMakeLists.txt
 !libs
 !libs/**

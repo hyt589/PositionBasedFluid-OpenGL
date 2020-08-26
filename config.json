@@ -1,0 +1,16 @@
+{
+    "renderer": {
+        "glVersion":{
+            "major":3,
+            "minor":3
+        },
+        "windowTitle": "Position Based Fluid",
+        "resolution":{
+            "width": 1920,
+            "height": 1080
+        },
+        "fov": 90.0,
+        "vshaders": {},
+        "fshaders": {}
+    }
+}

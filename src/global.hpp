@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <glm.hpp>
 #include <json.hpp>
