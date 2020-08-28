@@ -55,3 +55,14 @@ Program::Program(unsigned int vShaderID, unsigned int fShaderID){
 void Program::use(){
     glUseProgram(ID);
 }
+
+template<typename T>
+void Program::setUniform(std::string &name, T value, void (*f)(unsigned int,T)){
+    unsigned int loc = glGetUniformLocation(ID, name.c_str());
+    if(loc == -1){
+        LOG_ERR("Uniform not found: " + name)
+        return;
+    }
+    (*f)(loc, value);
+    LOG_INFO("Uniform '" + name + "' set")
+}
