@@ -1,6 +1,16 @@
 #include "ShaderProgram.hpp"
 
+std::string toString(ShaderType t){
+    return t == ShaderType::VERT ? "GL_VERTEX_SHADER" :
+            t == ShaderType::FRAG ? "GL_FRAGMENT_SHADER" :
+            t == ShaderType::GEO ? "GL_GEOMETRY_SHADER" :
+            t == ShaderType::TESS_CTL ? "GL_TESS_CONTROL_SHADER" :
+            t == ShaderType::TESS_EVAL ? "GL_TESS_EVALUATION_SHADER" :
+                        "GL_COMPUTE_SHADER";
+}
+
 Shader::Shader(ShaderType type, std::string path){
+
     std::ifstream shaderFile;
     std::string shaderCode;
 
@@ -41,10 +51,17 @@ Shader::Shader(ShaderType type, std::string path){
     
 }
 
-Program::Program(std::vector<unsigned int> & shaders){
+Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
     ID = glCreateProgram();
-    for(auto shader : shaders){
-        glAttachShader(ID, shader);
+    std::set<ShaderType> set;
+    for(auto & shader : shaders){
+        if (set.count(shader->type))
+        {
+            LOG_WARN("Detected multiple [" + toString(shader->type) +"], overloading with the latest")
+        }
+        set.insert(shader->type);
+        LOG_INFO("Attaching [" + toString(shader->type) + "]")
+        glAttachShader(ID, shader->ID);
     }
     glLinkProgram(ID);
     int success;

@@ -26,7 +26,7 @@ private:
 public:
     unsigned int ID;
     bool linking_success = false;
-    Program(std::vector<unsigned int> & shaders);
+    Program(std::vector<std::unique_ptr<Shader>> & shaders);
     ~Program();
 
     void use();

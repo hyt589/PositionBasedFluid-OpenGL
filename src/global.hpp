@@ -9,6 +9,9 @@
 #include <glm.hpp>
 #include <json.hpp>
 #include <fstream>
+#include <set>
+#include <map>
+#include <memory>
 
 using JSON = nlohmann::json;
 
