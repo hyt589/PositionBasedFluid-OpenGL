@@ -16,7 +16,13 @@ Shader::Shader(ShaderType type, std::string path){
         return;
     }
 
-    GLenum shaderType = type == ShaderType::VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+    GLenum shaderType = type == ShaderType::VERT ? GL_VERTEX_SHADER :
+                        type == ShaderType::FRAG ? GL_FRAGMENT_SHADER :
+                        type == ShaderType::GEO ? GL_GEOMETRY_SHADER :
+                        type == ShaderType::TESS_CTL ? GL_TESS_CONTROL_SHADER :
+                        type == ShaderType::TESS_EVAL ? GL_TESS_EVALUATION_SHADER :
+                        GL_COMPUTE_SHADER;
+
     const char * shaderSourceCode = shaderCode.c_str();
     ID = glCreateShader(shaderType);
     glShaderSource(ID, 1, &shaderSourceCode, NULL);
@@ -35,10 +41,11 @@ Shader::Shader(ShaderType type, std::string path){
     
 }
 
-Program::Program(unsigned int vShaderID, unsigned int fShaderID){
+Program::Program(std::vector<unsigned int> & shaders){
     ID = glCreateProgram();
-    glAttachShader(ID, vShaderID);
-    glAttachShader(ID, fShaderID);
+    for(auto shader : shaders){
+        glAttachShader(ID, shader);
+    }
     glLinkProgram(ID);
     int success;
     glGetProgramiv(ID, GL_LINK_STATUS, &success);

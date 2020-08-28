@@ -4,7 +4,7 @@
 
 enum ShaderType
 {
-    VERTEX, FRAGMENT
+    VERT, FRAG, GEO, TESS_CTL, TESS_EVAL, COMP
 };
 
 class Shader
@@ -26,7 +26,7 @@ private:
 public:
     unsigned int ID;
     bool linking_success = false;
-    Program(unsigned int vShaderID, unsigned int fShaderID);
+    Program(std::vector<unsigned int> & shaders);
     ~Program();
 
     void use();

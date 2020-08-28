@@ -1,6 +1,8 @@
 *
 !.gitignore
 !.gitmodules
+!assets
+!assets/**
 !config.json
 !CMakeLists.txt
 !libs
