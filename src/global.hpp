@@ -16,14 +16,15 @@ using JSON = nlohmann::json;
 #define LOG_WARN(msg) std::cout << "[Warning] " << msg << std::endl;
 
 namespace global{
-    JSON config;
-    bool config_loaded = false;
+    inline JSON config;
+    inline bool config_loaded = false;
 
-    void load_config(std::string path){
+    inline void load_config(std::string path){
         std::ifstream in(path);
         in >> config;
         config_loaded = true;
     }
 } 
 
-auto & CONFIG = global::config;
+inline auto & CONFIG = global::config;
+

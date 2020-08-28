@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(pbf VERSION 0.1.0)
 
 include(CTest)
@@ -25,7 +27,7 @@ include_directories(
     "libs/json/single_include/nlohmann"
     )
 
-file(GLOB SOURCE_FILES "src/*.c" "src/*.cpp" "src/.*h" "src/*.hpp")
+file(GLOB SOURCE_FILES "src/glad.c" "src/*.cpp")
 
 add_executable(pbf ${SOURCE_FILES})
 
