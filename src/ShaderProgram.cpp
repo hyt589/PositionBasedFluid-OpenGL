@@ -11,14 +11,17 @@ std::string toString(ShaderType t){
 
 Shader::Shader(ShaderType type, std::string path){
 
+    this->type = type;
     std::ifstream shaderFile;
     std::string shaderCode;
-
+    std::string line;
     try
     {
-        shaderFile.open(path);
-        shaderFile >> shaderCode;
-        shaderFile.close();
+        while (std::getline(shaderFile, line))
+        {
+            shaderCode += line;
+        }
+        
     }
     catch(const std::exception& e)
     {
