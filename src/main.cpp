@@ -1,4 +1,5 @@
 #include "global.hpp"
+#include "asset.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -42,6 +43,8 @@ int main(int argc, char** argv) {
         LOG_ERR("Failed to initialize GLAD")
         return -1;
     }    
+
+    Model model(CONFIG["assets"]["scene"]);
 
     while (!glfwWindowShouldClose(window))
     {

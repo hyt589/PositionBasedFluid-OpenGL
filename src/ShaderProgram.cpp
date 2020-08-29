@@ -40,15 +40,19 @@ Shader::Shader(ShaderType type, std::string path){
     int success;
     glGetShaderiv(ID, GL_COMPILE_STATUS, &success);
     if (!success){
-        LOG_ERR("Shader compilation failed")
+        LOG_ERR(toString(type) + " compilation failed")
         char info[512];
         glGetShaderInfoLog(ID, 512, NULL, info);
         LOG_ERR(info);
         return;
     }
-
+    LOG_INFO(toString(type) + " successfully compiled")
     compilation_success = true;
     
+}
+
+Shader::~Shader(){
+    glDeleteShader(ID);
 }
 
 Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
@@ -80,13 +84,17 @@ void Program::use(){
     glUseProgram(ID);
 }
 
-template<typename T>
-void Program::setUniform(std::string &name, T value, void (*f)(unsigned int,T)){
-    unsigned int loc = glGetUniformLocation(ID, name.c_str());
-    if(loc == -1){
-        LOG_ERR("Uniform not found: " + name)
-        return;
-    }
-    (*f)(loc, value);
-    LOG_INFO("Uniform '" + name + "' set")
+// template<typename T>
+// void Program::setUniform(std::string &name, T value, void (*f)(GLint,T)){
+//     auto loc = glGetUniformLocation(ID, name.c_str());
+//     if(loc == -1){
+//         LOG_ERR("Uniform not found: " + name)
+//         return;
+//     }
+//     (*f)(loc, value);
+//     LOG_INFO("Uniform '" + name + "' set")
+// }
+
+Program::~Program(){
+    glDeleteProgram(ID);
 }

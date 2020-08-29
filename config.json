@@ -6,13 +6,16 @@
         },
         "windowTitle": "Position Based Fluid",
         "resolution":{
-            "width": 1920,
-            "height": 1080
+            "width": 720,
+            "height": 480
         },
-        "fov": 90.0,
+        "fov": 90.0
+    },
+    "assets":{
         "shaders":{
-            "vertex": "",
-            "fragment": ""
-        }
+            "vshader":"assets/shaders/shader.vert",
+            "fshader":"assets/shaders/shader.frag"
+        },
+        "scene": "assets/scenes/Sponza_Atrium_gltf/Sponza.gltf"
     }
 }

@@ -25,9 +25,11 @@ include_directories(
     "libs/imgui"
     "libs/glm/glm"
     "libs/json/single_include/nlohmann"
-    )
+    "libs/assimp/include"
+    "libs/stb/"
+)
 
-file(GLOB SOURCE_FILES "src/glad.c" "src/*.cpp")
+file(GLOB SOURCE_FILES "src/glad.c" "src/*.cpp" )
 
 add_executable(pbf ${SOURCE_FILES})
 
