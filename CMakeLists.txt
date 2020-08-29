@@ -29,7 +29,7 @@ include_directories(
     "libs/stb/"
 )
 
-file(GLOB SOURCE_FILES "src/glad.c" "src/*.cpp" )
+file(GLOB SOURCE_FILES "src/glad.c" "src/*.cpp")
 
 add_executable(pbf ${SOURCE_FILES})
 

@@ -17,3 +17,9 @@ git clone --recursive https://github.com/hyt589/PositionBasedFluid-OpenGL.git
 ## Notes
 
 This project is still a work in progress.
+
+### TODOS
+
+- Implement PBR shaders for rendering
+- Implement position based fluid
+- (stretch goal) Implement global illumination using Voxel Cone Tracing

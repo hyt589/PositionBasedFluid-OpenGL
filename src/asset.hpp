@@ -58,7 +58,7 @@ private:
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
 
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
 
         glBindVertexArray(0);
     };
@@ -67,10 +67,17 @@ public:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
+    glm::vec3 position;
+    glm::vec2 orientation;
+    float scale;
     Mesh(
         std::vector<Vertex> vertices,
         std::vector<unsigned int> indices,
-        std::vector<Texture> textures);
+        std::vector<Texture> textures,
+        glm::vec3 position = glm::vec3(0.f, 0.f, 0.f),
+        glm::vec2 orientation = glm::vec2(0.f, 0.f),
+        float scale = 1.f
+    );
     void Draw(Program &program);
     ~Mesh();
 };
@@ -113,7 +120,7 @@ private:
         {
             processNode(node->mChildren[i], scene);
         }
-        
+
     };
 
     Mesh processMesh(aiMesh *mesh, const aiScene *scene)
