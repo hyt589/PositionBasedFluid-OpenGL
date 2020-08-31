@@ -238,6 +238,8 @@ private:
     }
 
 public:
+    glm::vec3 position;
+    glm::vec2 orientation;
     Model(std::string path);
     void Draw(Program &program);
     ~Model();
@@ -245,6 +247,7 @@ public:
 
 static uint TextureFromFile(std::string filename, std::string &dir)
 {
+    stbi_set_flip_vertically_on_load(true);
     std::string path;
 #if defined(_WIN32) || defined(WIN32)
     path = dir + "\\" + filename;

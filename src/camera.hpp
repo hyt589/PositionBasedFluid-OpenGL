@@ -4,11 +4,13 @@ class Camera
 {
 private:
 
+    
+
+public:
+
     glm::vec3 pos;
     glm::vec3 dir;
     glm::vec3 up;
-
-public:
     
     Camera(glm::vec3 pos, glm::vec3 dir, glm::vec3 up){
         this->pos = pos;

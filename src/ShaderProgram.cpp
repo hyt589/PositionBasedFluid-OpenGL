@@ -1,4 +1,5 @@
 #include "ShaderProgram.hpp"
+#include <sstream>
 
 std::string toString(ShaderType t){
     return t == ShaderType::VERT ? "GL_VERTEX_SHADER" :
@@ -12,16 +13,13 @@ std::string toString(ShaderType t){
 Shader::Shader(ShaderType type, std::string path){
 
     this->type = type;
-    std::ifstream shaderFile;
+    std::ifstream shaderFile(path);
     std::string shaderCode;
-    std::string line;
     try
     {
-        while (std::getline(shaderFile, line))
-        {
-            shaderCode += line;
-        }
-        
+        std::ostringstream outstream;
+        outstream << shaderFile.rdbuf();
+        shaderCode = outstream.str();
     }
     catch(const std::exception& e)
     {
@@ -81,6 +79,7 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
         return;
     }
     linking_success = true;
+    LOG_INFO("Program successfully linked")
 }
 
 void Program::use(){
