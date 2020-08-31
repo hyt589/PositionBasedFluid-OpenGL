@@ -76,6 +76,7 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
         glGetProgramInfoLog(ID, 512, NULL, info);
         LOG_ERR("Program linking error")
         LOG_ERR(info)
+        glDeleteProgram(ID);
         return;
     }
     linking_success = true;

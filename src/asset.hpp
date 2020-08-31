@@ -152,6 +152,7 @@ private:
             {
                 vertex.uv = glm::vec2(0.f, 0.f);
             }
+            vertices.push_back(vertex);
         }
 
         for (uint i = 0; i < mesh->mNumFaces; i++)

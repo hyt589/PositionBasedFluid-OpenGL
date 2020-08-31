@@ -122,6 +122,8 @@ void Application::init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, config["renderer"]["glVersion"]["major"]);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, config["renderer"]["glVersion"]["minor"]);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -190,7 +192,7 @@ void Application::run()
 void Application::renderLoop()
 {
     glm::vec3 lightPositions[] = {
-        glm::vec3(0.0f, 0.0f, 10.0f),
+        glm::vec3(0.0f, 10.0f, 10.0f),
     };
     glm::vec3 lightColors[] = {
         glm::vec3(150.0f, 150.0f, 150.0f),
@@ -198,13 +200,17 @@ void Application::renderLoop()
 
     while (!glfwWindowShouldClose(window))
     {
-        glUseProgram(program->ID);
+        program->use();
         // input
         // -----
         processInput(window);
 
         // render
         // ------
+        
+        glClearColor(0.f, 0.f, 0.f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         auto mat_view = cam->getViewMatrix();
         program->setUniform("mat_view", mat_view, glUniformMatrix4fv);
         program->setUniform("camPos", cam->pos, glUniform3fv);
@@ -215,8 +221,6 @@ void Application::renderLoop()
 
         }
         model->Draw(*program);
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -230,5 +234,4 @@ Application::~Application()
     delete program;
     delete model;
     delete cam;
-    std::free(window);
 }

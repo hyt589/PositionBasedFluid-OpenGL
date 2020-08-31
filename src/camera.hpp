@@ -2,9 +2,6 @@
 
 class Camera
 {
-private:
-
-    
 
 public:
 

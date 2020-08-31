@@ -39,7 +39,7 @@ public:
             return;
         }
         (*f)(loc, value);
-        LOG_INFO("Uniform '" + name + "' set")
+        // LOG_INFO("Uniform '" + name + "' set")
     };
 
     template<typename T, typename P>
@@ -50,7 +50,7 @@ public:
             return;
         }
         (*f)(loc, 1, glm::value_ptr(value));
-        LOG_INFO("Uniform '" + name + "' set")
+        // LOG_INFO("Uniform '" + name + "' set")
     };
 
     template<typename T, typename P>
@@ -61,7 +61,7 @@ public:
             return;
         }
         (*f)(loc, 1, GL_FALSE, glm::value_ptr(value));
-        LOG_INFO("Uniform '" + name + "' set")
+        // LOG_INFO("Uniform '" + name + "' set")
     };
 };
 
