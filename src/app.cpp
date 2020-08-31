@@ -198,6 +198,7 @@ void Application::renderLoop()
 
     while (!glfwWindowShouldClose(window))
     {
+        glUseProgram(program->ID);
         // input
         // -----
         processInput(window);
@@ -205,16 +206,12 @@ void Application::renderLoop()
         // render
         // ------
         auto mat_view = cam->getViewMatrix();
-        std::string name = "mat_view";
-        program->setUniform(name, mat_view, glUniformMatrix4fv);
-        name = "camPos";
-        program->setUniform(name, cam->pos, glUniform3fv);
+        program->setUniform("mat_view", mat_view, glUniformMatrix4fv);
+        program->setUniform("camPos", cam->pos, glUniform3fv);
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i){
             glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
-            name = "lightPos[" + std::to_string(i) + "]";
-            program->setUniform(name, lightPositions[i], glUniform3fv);
-            name = "lightColor[" + std::to_string(i) + "]";
-            program->setUniform(name, lightColors[i], glUniform3fv);
+            program->setUniform("lightPos[" + std::to_string(i) + "]", lightPositions[i], glUniform3fv);
+            program->setUniform("lightColor[" + std::to_string(i) + "]", lightColors[i], glUniform3fv);
 
         }
         model->Draw(*program);

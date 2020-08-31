@@ -20,7 +20,7 @@ Mesh::Mesh(
 }
 
 void Mesh::Draw(Program &program){
-    program.use();
+    // program.use();
 
     
     // name = "mat_projection";
@@ -55,8 +55,7 @@ void Model::Draw(Program &program){
     mat_model = glm::rotate(mat_model, glm::radians(orientation.x), glm::vec3(0.f, 1.f, 0.f));
     mat_model = glm::rotate(mat_model, glm::radians(orientation.x), glm::vec3(1.f, 0.f, 0.f));
     mat_model = glm::translate(mat_model, position);
-    auto name = std::string("mat_model");
-    program.setUniform(name, mat_model, glUniformMatrix4fv);
+    program.setUniform("mat_model", mat_model, glUniformMatrix4fv);
     for(auto mesh : meshes)
     {
         mesh.Draw(program);

@@ -32,7 +32,7 @@ public:
     void use();
 
     template<typename T>
-    void setUniform(std::string& name, T value, void (*f)(GLint,T)){
+    void setUniform(std::string name, T value, void (*f)(GLint,T)){
         auto loc = glGetUniformLocation(ID, name.c_str());
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
@@ -43,7 +43,7 @@ public:
     };
 
     template<typename T, typename P>
-    void setUniform(std::string& name, T value, void (*f)(GLint, GLsizei, P)){
+    void setUniform(std::string name, T value, void (*f)(GLint, GLsizei, P)){
         auto loc = glGetUniformLocation(ID, name.c_str());
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
@@ -54,7 +54,7 @@ public:
     };
 
     template<typename T, typename P>
-    void setUniform(std::string& name, T value, void (*f)(GLint, GLsizei, GLboolean, P)){
+    void setUniform(std::string name, T value, void (*f)(GLint, GLsizei, GLboolean, P)){
         auto loc = glGetUniformLocation(ID, name.c_str());
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
