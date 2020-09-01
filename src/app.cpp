@@ -198,9 +198,13 @@ void Application::renderLoop()
         glm::vec3(150.0f, 150.0f, 150.0f),
     };
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
+
+    LOG_INFO("Application: Starting rendering")
     while (!glfwWindowShouldClose(window))
     {
-        program->use();
+        
         // input
         // -----
         processInput(window);
@@ -208,9 +212,10 @@ void Application::renderLoop()
         // render
         // ------
         
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        program->use();
         auto mat_view = cam->getViewMatrix();
         program->setUniform("mat_view", mat_view, glUniformMatrix4fv);
         program->setUniform("camPos", cam->pos, glUniform3fv);

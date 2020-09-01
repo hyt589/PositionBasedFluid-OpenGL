@@ -13,7 +13,6 @@ uniform mat4 mat_view;
 uniform mat4 mat_projection;
 
 
-
 void main(){
     uv = v_uv;
     pos = vec3(mat_model * vec4(vPos, 1.0));

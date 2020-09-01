@@ -154,6 +154,7 @@ private:
             }
             vertices.push_back(vertex);
         }
+        LOG_INFO("Asset: Mesh " << vertices.size() << " vertices loaded")
 
         for (uint i = 0; i < mesh->mNumFaces; i++)
         {
@@ -163,6 +164,7 @@ private:
                 indices.push_back(face.mIndices[j]);
             }
         }
+        LOG_INFO("Asset: Mesh " << indices.size() << " indices loaded")
 
         if (mesh->mMaterialIndex >= 0)
         {
@@ -180,6 +182,7 @@ private:
             textures.push_back(metallicMap);
             textures.insert(textures.end(), aoMap.begin(), aoMap.end());
         }
+        LOG_INFO("Asset: Mesh textures loaded")
         return Mesh(vertices, indices, textures);
     };
 
