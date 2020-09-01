@@ -35,15 +35,15 @@ Shader::Shader(ShaderType type, std::string path){
                         GL_COMPUTE_SHADER;
 
     const char * shaderSourceCode = shaderCode.c_str();
-    ID = glCreateShader(shaderType);
-    glShaderSource(ID, 1, &shaderSourceCode, NULL);
-    glCompileShader(ID);
+    ID = GL(glCreateShader(shaderType));
+    GL(glShaderSource(ID, 1, &shaderSourceCode, NULL));
+    GL(glCompileShader(ID));
     int success;
-    glGetShaderiv(ID, GL_COMPILE_STATUS, &success);
+    GL(glGetShaderiv(ID, GL_COMPILE_STATUS, &success));
     if (!success){
         LOG_ERR(toString(type) + " compilation failed")
         char info[512];
-        glGetShaderInfoLog(ID, 512, NULL, info);
+        GL(glGetShaderInfoLog(ID, 512, NULL, info));
         LOG_ERR(info);
         return;
     }
@@ -53,11 +53,11 @@ Shader::Shader(ShaderType type, std::string path){
 }
 
 Shader::~Shader(){
-    glDeleteShader(ID);
+    GL(glDeleteShader(ID));
 }
 
 Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
-    ID = glCreateProgram();
+    ID = GL(glCreateProgram());
     std::set<ShaderType> set;
     for(auto & shader : shaders){
         if (set.count(shader->type))
@@ -66,17 +66,17 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
         }
         set.insert(shader->type);
         LOG_INFO("Attaching [" + toString(shader->type) + "]")
-        glAttachShader(ID, shader->ID);
+        GL(glAttachShader(ID, shader->ID));
     }
-    glLinkProgram(ID);
+    GL(glLinkProgram(ID));
     int success;
-    glGetProgramiv(ID, GL_LINK_STATUS, &success);
+    GL(glGetProgramiv(ID, GL_LINK_STATUS, &success));
     if(!success){
         char info[512];
-        glGetProgramInfoLog(ID, 512, NULL, info);
+        GL(glGetProgramInfoLog(ID, 512, NULL, info));
         LOG_ERR("Program linking error")
         LOG_ERR(info)
-        glDeleteProgram(ID);
+        GL(glDeleteProgram(ID));
         return;
     }
     linking_success = true;
@@ -84,7 +84,7 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
 }
 
 void Program::use(){
-    glUseProgram(ID);
+    GL(glUseProgram(ID));
 }
 
 // template<typename T>
@@ -99,5 +99,5 @@ void Program::use(){
 // }
 
 Program::~Program(){
-    glDeleteProgram(ID);
+    GL(glDeleteProgram(ID));
 }
