@@ -31,36 +31,38 @@ private:
     unsigned int VAO, VBO, EBO;
     void init()
     {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
+        GL(glGenVertexArrays(1, &VAO));
+        GL(glGenBuffers(1, &VBO));
+        GL(glGenBuffers(1, &EBO));
 
-        glBindVertexArray(VAO);
+        GL(glBindVertexArray(VAO));
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(
+        GL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+        GL(glBufferData(
             GL_ARRAY_BUFFER,
             vertices.size() * sizeof(Vertex),
             &vertices[0],
-            GL_STATIC_DRAW);
+            GL_STATIC_DRAW
+        ));
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(
+        GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+        GL(glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             indices.size() * sizeof(unsigned int),
             &indices[0],
-            GL_STATIC_DRAW);
+            GL_STATIC_DRAW
+        ));
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+        GL(glEnableVertexAttribArray(0));
+        GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0));
 
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+        GL(glEnableVertexAttribArray(1));
+        GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal)));
 
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
+        GL(glEnableVertexAttribArray(2));
+        GL(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv)));
 
-        glBindVertexArray(0);
+        GL(glBindVertexArray(0));
     };
 
 public:
@@ -260,7 +262,7 @@ static uint TextureFromFile(std::string filename, std::string &dir)
 #endif
 
     uint textureID;
-    glGenTextures(1, &textureID);
+    GL(glGenTextures(1, &textureID));
 
     int width, height, nrComponents;
     u_char *data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
@@ -274,14 +276,14 @@ static uint TextureFromFile(std::string filename, std::string &dir)
         else if (nrComponents == 4)
             format = GL_RGBA;
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GL(glBindTexture(GL_TEXTURE_2D, textureID));
+        GL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
+        GL(glGenerateMipmap(GL_TEXTURE_2D));
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+        GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+        GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+        GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
         stbi_image_free(data);
         LOG_INFO("stb_image: successfully loaded " << path)

@@ -28,15 +28,15 @@ void Mesh::Draw(Program &program){
 
     std::set<std::string> textureTypes;
     for(size_t i = 0; i < textures.size(); i++){
-        glActiveTexture(GL_TEXTURE0 + i);
+        GL(glActiveTexture(GL_TEXTURE0 + i));
         program.setUniform<GLint>(textures[i].type, i, glUniform1i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        GL(glBindTexture(GL_TEXTURE_2D, textures[i].id));
     }
-    glActiveTexture(GL_TEXTURE0);
+    GL(glActiveTexture(GL_TEXTURE0));
 
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    GL(glBindVertexArray(VAO));
+    GL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0));
+    GL(glBindVertexArray(0));
 }
 
 

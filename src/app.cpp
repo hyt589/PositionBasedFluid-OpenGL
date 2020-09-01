@@ -119,8 +119,8 @@ Application::Application(std::string path)
 void Application::init()
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, config["renderer"]["glVersion"]["major"]);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, config["renderer"]["glVersion"]["minor"]);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int) config["renderer"]["glVersion"]["major"]);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, (int) config["renderer"]["glVersion"]["minor"]);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
@@ -168,7 +168,7 @@ void Application::run()
 
     cam = new Camera(
         glm::vec3(0.f),
-        glm::vec3(0.f, 0.f, -1.f),
+        glm::vec3(1.f, 0.f, 0.f),
         glm::vec3(0.f, 1.f, 0.f)
     );
 
@@ -184,7 +184,10 @@ void Application::run()
     std::string name = "mat_projection";
     program->setUniform(name, mat_perspective_projection, glUniformMatrix4fv);
     
+    LOG_INFO("Application: Rendering starting...")
     renderLoop();
+    LOG_INFO("Application: Rendering stopped")
+    LOG_INFO("Application: Terminating...")
 
     glfwTerminate();
 }
@@ -192,16 +195,15 @@ void Application::run()
 void Application::renderLoop()
 {
     glm::vec3 lightPositions[] = {
-        glm::vec3(0.0f, 10.0f, 10.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
     };
     glm::vec3 lightColors[] = {
         glm::vec3(150.0f, 150.0f, 150.0f),
     };
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glEnable(GL_MULTISAMPLE));
 
-    LOG_INFO("Application: Starting rendering")
     while (!glfwWindowShouldClose(window))
     {
         
@@ -212,8 +214,8 @@ void Application::renderLoop()
         // render
         // ------
         
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL(glClearColor(0.1f, 0.2f, 0.3f, 1.0f));
+        GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         program->use();
         auto mat_view = cam->getViewMatrix();
@@ -223,7 +225,6 @@ void Application::renderLoop()
             glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
             program->setUniform("lightPos[" + std::to_string(i) + "]", lightPositions[i], glUniform3fv);
             program->setUniform("lightColor[" + std::to_string(i) + "]", lightColors[i], glUniform3fv);
-
         }
         model->Draw(*program);
 
