@@ -123,7 +123,6 @@ void Application::renderLoop()
         GL(glClearColor(0.1f, 0.2f, 0.3f, 1.0f));
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        program->use();
         auto mat_view = cam->getViewMatrix();
         program->setUniform("mat_view", mat_view, glUniformMatrix4fv);
         program->setUniform("camPos", cam->pos, glUniform3fv);

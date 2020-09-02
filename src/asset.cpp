@@ -25,7 +25,7 @@ void Mesh::Draw(Program &program){
     
     // name = "mat_projection";
     // program.setUniform(name, mat_perspective_projection, glUniformMatrix4fv);
-
+    program.activate();
     std::set<std::string> textureTypes;
     for(size_t i = 0; i < textures.size(); i++){
         GL(glActiveTexture(GL_TEXTURE0 + i));
@@ -37,6 +37,7 @@ void Mesh::Draw(Program &program){
     GL(glBindVertexArray(VAO));
     GL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0));
     GL(glBindVertexArray(0));
+    program.deactivate();
 }
 
 

@@ -11,7 +11,7 @@ uniform sampler2D normalMap;
 //The metalness values are sampled from the B channel. The roughness values are sampled from the G channel
 uniform sampler2D metallicRoughnessMap;
 // no aoMap in this model
-// uniform sampler2D aoMap;
+uniform sampler2D aoMap;
 
 #define MAX_LIGHT 4
 
@@ -99,7 +99,7 @@ void main(){
         vec3 H = normalize(V + L);
         float distance = length(lightPos[i] - pos);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lightColor[i] * attenuation;
+        vec3 radiance = 10 * lightColor[i] * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);   
         float G   = GeometrySmith(N, V, L, roughness);      

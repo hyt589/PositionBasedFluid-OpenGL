@@ -83,20 +83,13 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
     LOG_INFO("Program successfully linked")
 }
 
-void Program::use(){
+void Program::activate(){
     GL(glUseProgram(ID));
 }
 
-// template<typename T>
-// void Program::setUniform(std::string &name, T value, void (*f)(GLint,T)){
-//     auto loc = glGetUniformLocation(ID, name.c_str());
-//     if(loc == -1){
-//         LOG_ERR("Uniform not found: " + name)
-//         return;
-//     }
-//     (*f)(loc, value);
-//     LOG_INFO("Uniform '" + name + "' set")
-// }
+void Program::deactivate(){
+    GL(glUseProgram(0));
+}
 
 Program::~Program(){
     GL(glDeleteProgram(ID));

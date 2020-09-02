@@ -29,41 +29,45 @@ public:
     Program(std::vector<std::unique_ptr<Shader>> & shaders);
     ~Program();
 
-    void use();
+    void activate();
+    void deactivate();
 
     template<typename T>
     void setUniform(std::string name, T value, void (*f)(GLint,T)){
-        use();
+        activate();
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
             return;
         }
         GL((*f)(loc, value));
+        deactivate();
         // LOG_INFO("Uniform '" + name + "' set")
     };
 
     template<typename T, typename P>
     void setUniform(std::string name, T value, void (*f)(GLint, GLsizei, P)){
-        use();
+        activate();
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
             return;
         }
         GL((*f)(loc, 1, glm::value_ptr(value)));
+        deactivate();
         // LOG_INFO("Uniform '" + name + "' set")
     };
 
     template<typename T, typename P>
     void setUniform(std::string name, T value, void (*f)(GLint, GLsizei, GLboolean, P)){
-        use();
+        activate();
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
             return;
         }
         GL((*f)(loc, 1, GL_FALSE, glm::value_ptr(value)));
+        deactivate();
         // LOG_INFO("Uniform '" + name + "' set")
     };
 };
