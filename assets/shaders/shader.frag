@@ -17,6 +17,7 @@ uniform sampler2D aoMap;
 
 uniform vec3 lightPos[MAX_LIGHT];
 uniform vec3 lightColor[MAX_LIGHT];
+uniform float lightEmission[MAX_LIGHT];
 
 uniform vec3 camPos;
 

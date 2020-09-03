@@ -9,11 +9,13 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <gtx/string_cast.hpp>
 #include <json.hpp>
 #include <fstream>
 #include <set>
 #include <map>
 #include <memory>
+#include <array>
 
 using JSON = nlohmann::json;
 
@@ -56,3 +58,5 @@ inline GLenum glCheckError_(const char *file, int line)
 #else
 #define GL(glFunctionCall) glFunctionCall; glCheckError()
 #endif // NDEBUG
+
+#define MAX_LIGHTS 4

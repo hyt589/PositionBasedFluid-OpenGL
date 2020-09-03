@@ -69,16 +69,10 @@ public:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
-    glm::vec3 position;
-    glm::vec2 orientation;
-    float scale;
     Mesh(
         std::vector<Vertex> vertices,
         std::vector<unsigned int> indices,
-        std::vector<Texture> textures,
-        glm::vec3 position = glm::vec3(0.f, 0.f, 0.f),
-        glm::vec2 orientation = glm::vec2(0.f, 0.f),
-        float scale = 1.f
+        std::vector<Texture> textures
     );
     void Draw(Program &program);
     ~Mesh();
@@ -244,8 +238,9 @@ private:
     }
 
 public:
-    glm::vec3 position;
-    glm::vec2 orientation;
+    glm::vec3 position = glm::vec3(0.f);
+    glm::vec3 orientation = glm::vec3(0.f);
+    float scale = 1.f;
     Model(std::string path);
     void Draw(Program &program);
     ~Model();

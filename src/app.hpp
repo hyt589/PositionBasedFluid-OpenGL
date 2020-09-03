@@ -1,3 +1,5 @@
+#pragma once
+
 #include "global.hpp"
 #include "camera.hpp"
 #include "asset.hpp"

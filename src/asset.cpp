@@ -4,18 +4,12 @@
 Mesh::Mesh(
     std::vector<Vertex> vertices,
     std::vector<unsigned int> indices,
-    std::vector<Texture> textures,
-    glm::vec3 position,
-    glm::vec2 orientation,
-    float scale
+    std::vector<Texture> textures
 )
 {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
-    this->position = position;
-    this->orientation = orientation;
-    this->scale = 1.f;
     init();
 }
 
@@ -54,8 +48,9 @@ Model::Model(std::string path)
 
 void Model::Draw(Program &program){
     glm::mat4 mat_model(1);
-    mat_model = glm::rotate(mat_model, glm::radians(orientation.x), glm::vec3(0.f, 1.f, 0.f));
     mat_model = glm::rotate(mat_model, glm::radians(orientation.x), glm::vec3(1.f, 0.f, 0.f));
+    mat_model = glm::rotate(mat_model, glm::radians(orientation.y), glm::vec3(0.f, 1.f, 0.f));
+    mat_model = glm::rotate(mat_model, glm::radians(orientation.z), glm::vec3(0.f, 0.f, 1.f));
     mat_model = glm::translate(mat_model, position);
     program.setUniform("mat_model", mat_model, glUniformMatrix4fv);
     for(auto mesh : meshes)
