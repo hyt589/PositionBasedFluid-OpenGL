@@ -1,25 +1,18 @@
 #pragma once
 
 #include "global.hpp"
-#include "camera.hpp"
-#include "asset.hpp"
-#include "ShaderProgram.hpp"
-
+#include "renderer.hpp"
+#include "scene.hpp"
 class Application
 {
 private:
-    JSON config;
-    GLFWwindow * window;
-    Camera * cam;
-    Model * model;
-    Program * program;
-
+    // std::unique_ptr<Renderer> renderer;
+    // std::unique_ptr<Scene> scene;
+    Renderer renderer;
+    Scene scene;
 public:
-    Application(std::string path);
-    void init();
-    void renderLoop();
+    Application(JSON config);
     void run();
-    ~Application();
 };
 
 

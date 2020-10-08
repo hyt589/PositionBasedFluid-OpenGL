@@ -1,4 +1,6 @@
 #include "app.hpp"
+#include "renderer.hpp"
+#include "scene.hpp"
 
 int main(int argc, char const *argv[])
 {
@@ -9,8 +11,13 @@ int main(int argc, char const *argv[])
     } else {
         path = argv[1];
     }
+
+    JSON config;
+    std::ifstream in(path);
+    in >> config;
     
-    Application app(path);
+    Application app(config);
     app.run();
+    
     return 0;
 }

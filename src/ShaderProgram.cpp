@@ -83,6 +83,10 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
     LOG_INFO("Program successfully linked")
 }
 
+Program::Program(){
+    
+}
+
 void Program::activate(){
     GL(glUseProgram(ID));
 }
