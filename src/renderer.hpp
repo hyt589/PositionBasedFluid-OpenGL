@@ -1,3 +1,4 @@
+#pragma once
 #include "global.hpp"
 #include "ShaderProgram.hpp"
 #include "scene.hpp"
