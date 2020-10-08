@@ -7,6 +7,7 @@ layout (location = 2) in vec2 v_uv;
 out vec2 uv;
 out vec3 pos;
 out vec3 normal;
+out vec4 ligghtSpaceFragPos;
 
 uniform mat4 mat_model;
 uniform mat4 mat_view;

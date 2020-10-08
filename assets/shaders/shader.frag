@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec2 uv;
 in vec3 pos;
 in vec3 normal;
+in vec4 lightSpaceFragPos;
 
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
@@ -127,6 +128,5 @@ void main(){
     color = pow(color, vec3(1.0/2.2)); 
 
     FragColor = vec4(color, 1.0);
-    // FragColor = vec4(0.7294, 0.8745, 0.5412, 1.0);
 }
 
