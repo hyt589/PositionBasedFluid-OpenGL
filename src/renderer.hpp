@@ -11,6 +11,7 @@ private:
     Program * shadowProgram;
     GLFWwindow * window;
     Camera * cam;
+    uint shadow_width, shadow_height;
 public:
     Renderer(JSON & config);
     ~Renderer(){

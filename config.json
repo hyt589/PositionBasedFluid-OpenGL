@@ -9,12 +9,20 @@
             "width": 720,
             "height": 480
         },
-        "fov": 90.0
+        "fov": 90.0,
+        "shadowMap":{
+            "width": 1024,
+            "height": 1024
+        }
     },
     "assets":{
         "shaders":{
             "vshader":"assets/shaders/shader.vert",
             "fshader":"assets/shaders/shader.frag"
+        },
+        "depthShaders": {
+            "v": "assets/shaders/depth.vert",
+            "f": "assets/shaders/depth.frag"
         },
         "scene": "assets/scenes/Sponza_Atrium_gltf/Sponza.gltf"
     }
