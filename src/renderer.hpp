@@ -12,6 +12,8 @@ private:
     GLFWwindow * window;
     Camera * cam;
     uint shadow_width, shadow_height;
+    glm::mat4 shadowProj;
+    int w, h;
 public:
     Renderer(JSON & config);
     ~Renderer(){

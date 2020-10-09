@@ -22,7 +22,8 @@
         },
         "depthShaders": {
             "v": "assets/shaders/depth.vert",
-            "f": "assets/shaders/depth.frag"
+            "f": "assets/shaders/depth.frag",
+            "g": "assets/shaders/depth.geom"
         },
         "scene": "assets/scenes/Sponza_Atrium_gltf/Sponza.gltf"
     }

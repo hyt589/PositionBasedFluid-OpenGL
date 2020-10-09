@@ -95,3 +95,9 @@ void Program::deactivate(){
 Program::~Program(){
     GL(glDeleteProgram(ID));
 }
+
+void Program::with(void (*f)(Program*, std::unordered_map<std::string, std::any>), std::unordered_map<std::string, std::any> params){
+    activate();
+    f(this, params);
+    deactivate();
+}

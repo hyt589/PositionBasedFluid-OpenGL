@@ -14,15 +14,20 @@ uniform sampler2D metallicRoughnessMap;
 // no aoMap in this model
 uniform sampler2D aoMap;
 
+uniform float far_plane;
+
+uniform int numLights;
+
 #define MAX_LIGHT 4
 
 uniform vec3 lightPos[MAX_LIGHT];
 uniform vec3 lightColor[MAX_LIGHT];
-uniform float lightEmission[MAX_LIGHT];
 
 uniform vec3 camPos;
 
 const float PI = 3.14159265359;
+
+uniform samplerCube depthCubeMap[MAX_LIGHT];
 
 
 vec3 getNormalFromMap()
@@ -82,6 +87,21 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
+bool isInShadow(vec3 fragPos, int i){
+    // get vector between fragment position and light position
+    vec3 fragToLight = fragPos - lightPos[i];
+    // use the light to fragment vector to sample from the depth map    
+    float closestDepth = texture(depthCubeMap[i], fragToLight).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= far_plane;
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // now test for shadows
+    float bias = 0.5; 
+
+    return currentDepth - bias > closestDepth;
+}
+
 void main(){
 
     vec3 albedo = pow(texture(albedoMap, uv).rgb, vec3(2.2));
@@ -96,7 +116,10 @@ void main(){
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < numLights; i++){
+        if(isInShadow(pos, i)){
+            continue;
+        }
         vec3 L = normalize(lightPos[i] - pos);
         vec3 H = normalize(V + L);
         float distance = length(lightPos[i] - pos);

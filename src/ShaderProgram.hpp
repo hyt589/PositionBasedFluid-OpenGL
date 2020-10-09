@@ -70,6 +70,7 @@ public:
         deactivate();
         // LOG_INFO("Uniform '" + name + "' set")
     };
-};
 
+    void with(void (*f)(Program*, std::unordered_map<std::string, std::any>), std::unordered_map<std::string, std::any> params);
+};
 

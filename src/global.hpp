@@ -16,6 +16,7 @@
 #include <map>
 #include <memory>
 #include <array>
+#include <any>
 
 using JSON = nlohmann::json;
 
@@ -58,5 +59,13 @@ inline GLenum glCheckError_(const char *file, int line)
 #else
 #define GL(glFunctionCall) glFunctionCall; glCheckError()
 #endif // NDEBUG
+
+template<typename Fn, Fn fn, typename... Args>
+typename std::result_of<Fn(Args...)>::type
+wrapper(Args&&... args) {
+    return fn(std::forward<Args>(args)...);
+}
+
+#define COMPUTE(FUNC, ...) wrapper<decltype(&FUNC), &FUNC>(__VA_ARGS__)
 
 #define MAX_LIGHTS 4
