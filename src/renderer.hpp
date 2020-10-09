@@ -13,7 +13,11 @@ private:
     Camera * cam;
 public:
     Renderer(JSON & config);
-    ~Renderer(){};
+    ~Renderer(){
+        delete pbrProgram;
+        delete shadowProgram;
+        delete cam;
+    };
     void render(Scene & scene);
 };
 

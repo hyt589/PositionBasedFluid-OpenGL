@@ -1,17 +1,5 @@
 #include "renderer.hpp"
-
-void framebuffer_size_callbackk(GLFWwindow *window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-}
-
-void processInputt(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
+#include "windowUtil.hpp"
 
 Renderer::Renderer(JSON & config)
 {
@@ -42,7 +30,7 @@ Renderer::Renderer(JSON & config)
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callbackk);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -97,7 +85,7 @@ void Renderer::render(Scene & scene){
     GL(glEnable(GL_DEPTH_TEST));
     while (!glfwWindowShouldClose(window))
     {
-        processInputt(window);
+        processInput(window);
         GL(glClearColor(0.1f, 0.2f, 0.3f, 1.0f));
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -107,6 +95,10 @@ void Renderer::render(Scene & scene){
         auto mat_view = cam->getViewMatrix();
         pbrProgram->setUniform("mat_view", mat_view, glUniformMatrix4fv);
         pbrProgram->setUniform("camPos", cam->pos, glUniform3fv);
+        for(int i = 0; i < scene.numLights; i++){
+            pbrProgram->setUniform("lightPos[" + std::to_string(i) + "]", scene.lights[i].position, glUniform3fv);
+            pbrProgram->setUniform("lightColor[" + std::to_string(i) + "]", scene.lights[i].color * scene.lights[i].emission, glUniform3fv);
+        }
         scene.render(*pbrProgram);
 
         glfwSwapBuffers(window);

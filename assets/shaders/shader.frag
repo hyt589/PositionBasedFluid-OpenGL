@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec2 uv;
 in vec3 pos;
 in vec3 normal;
-in vec4 lightSpaceFragPos;
+in vec4 lightSpaceFragPos[4];
 
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
