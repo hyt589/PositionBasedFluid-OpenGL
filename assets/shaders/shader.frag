@@ -97,9 +97,17 @@ bool isInShadow(vec3 fragPos, int i){
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
     // now test for shadows
-    float bias = 0.5; 
+    float bias = 0.0005; 
 
-    return currentDepth - bias > closestDepth;
+    return currentDepth - bias >= closestDepth;
+}
+
+vec3 visualizeShadow(vec3 fragPos, int i){
+    vec3 fragToLight = fragPos - lightPos[i];
+    // use the light to fragment vector to sample from the depth map    
+    float closestDepth = texture(depthCubeMap[i], fragToLight).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    return vec3(closestDepth);
 }
 
 void main(){
@@ -139,6 +147,7 @@ void main(){
         kD *= 1.0 - metallic;
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        // Lo += visualizeShadow(pos, i);
     }
 
     vec3 ambient = vec3(0.03) * albedo * ao;
@@ -150,6 +159,7 @@ void main(){
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
+    // FragColor = vec4(visualizeShadow(pos,0), 1.0);
     FragColor = vec4(color, 1.0);
 }
 

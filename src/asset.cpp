@@ -48,6 +48,7 @@ Model::Model(std::string path)
 
 void Model::Draw(Program &program){
     glm::mat4 mat_model(1);
+    mat_model = glm::scale(mat_model, glm::vec3(scale));
     mat_model = glm::rotate(mat_model, glm::radians(orientation.x), glm::vec3(1.f, 0.f, 0.f));
     mat_model = glm::rotate(mat_model, glm::radians(orientation.y), glm::vec3(0.f, 1.f, 0.f));
     mat_model = glm::rotate(mat_model, glm::radians(orientation.z), glm::vec3(0.f, 0.f, 1.f));

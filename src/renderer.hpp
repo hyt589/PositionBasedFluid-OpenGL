@@ -14,6 +14,7 @@ private:
     uint shadow_width, shadow_height;
     glm::mat4 shadowProj;
     int w, h;
+    float dt;
 public:
     Renderer(JSON & config);
     ~Renderer(){
@@ -22,5 +23,7 @@ public:
         delete cam;
     };
     void render(Scene & scene);
+
+    void processInput(GLFWwindow * window);
 };
 
