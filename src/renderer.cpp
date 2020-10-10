@@ -89,20 +89,21 @@ Renderer::Renderer(JSON &config)
     //     glm::vec3(0.0, 0.0, -1.0));
 
     float aspect_ratio = (float)config["renderer"]["resolution"]["width"] / (float)config["renderer"]["resolution"]["height"];
+    float near = 0.01f, far = 300.f;
 
     auto mat_perspective_projection = glm::perspective(
         glm::radians((float)config["renderer"]["fov"]),
         aspect_ratio,
-        0.01f, 30.f);
+        near, far);
 
     std::string name = "mat_projection";
     pbrProgram->setUniform(name, mat_perspective_projection, glUniformMatrix4fv);
-    pbrProgram->setUniform("far_plane", 30.f, glUniform1f);
+    pbrProgram->setUniform("far_plane", far, glUniform1f);
 
-    shadowProgram->setUniform("far_plane", 30.f, glUniform1f);
+    shadowProgram->setUniform("far_plane", far, glUniform1f);
 
     float shadow_aspect = (float)shadow_width / (float)shadow_height;
-    shadowProj = glm::perspective(glm::radians(90.f), shadow_aspect, 0.01f, 30.f);
+    shadowProj = glm::perspective(glm::radians(90.f), shadow_aspect, near, far);
 
     LOG_INFO("Renderer::Initialization complete.")
 }
@@ -202,17 +203,7 @@ void Renderer::render(Scene &scene)
             scene.render(*shadowProgram);
 
             GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-            // pbrProgram->with([](Program *p, std::unordered_map<std::string, std::any> params) {
-            //     int i = std::any_cast<int>(params["i"]);
-            //     GL(glActiveTexture(GL_TEXTURE0 + i));
-            //     p->setUniform(
-            //         "depthCubeMap[" + std::to_string(i) + "]",
-            //         i, glUniform1i);
-            //     GL(glBindTexture(GL_TEXTURE_CUBE_MAP, std::any_cast<uint>(params["depthCubeMap"])));
-            //     GL(glActiveTexture(GL_TEXTURE0));
-            // },
-            //                  std::unordered_map<std::string, std::any>({{"i", i}, {"depthCubeMap", depthCubeMap[i]}}));
+            
         }
 
         //render scene with shadow map
@@ -242,11 +233,6 @@ void Renderer::render(Scene &scene)
 
 void Renderer::processInput(GLFWwindow *window)
 {
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, true);
-    }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {

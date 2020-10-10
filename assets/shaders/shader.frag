@@ -110,7 +110,7 @@ void main(){
         float attenuation = 1.0 / (r * r);
         vec3 radiance = 10 * lightColor[i] * attenuation;
 
-        float depthComponent = texture(depthCubeMap[i], L).r;
+        float depthComponent = texture(depthCubeMap[i], -L).r;
         float lightRange = depthComponent * far_plane;
         float shadow = (r <= lightRange + 0.0005) ? 0.0 : 1.0;
 
@@ -138,7 +138,7 @@ void main(){
         else if (mode % 3 == 2)
         {
             // Lo += r >= lightRange ? 0.0 : 1.0;
-            Lo += vec3(depthComponent, r / far_plane, shadow);
+            Lo += vec3(shadow);
             // Lo += vec3(lightRange / r);
         }
         // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * shadow;
