@@ -124,8 +124,7 @@ void Renderer::render(Scene &scene)
         return;
     }
 
-    GL(glEnable(GL_DEPTH_TEST));
-    GL(glEnable(GL_CULL_FACE));
+    
     // #ifndef NDEBUG
     // GL(glEnable(GL_DEBUG_OUTPUT));
     // GL(glDebugMessageCallback( MessageCallback, 0 ));
@@ -155,6 +154,17 @@ void Renderer::render(Scene &scene)
         GL(glReadBuffer(GL_NONE));
         GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
+
+    //init imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glEnable(GL_CULL_FACE));
 
     float lastFrame = 0;
     while (!glfwWindowShouldClose(window))
@@ -226,9 +236,30 @@ void Renderer::render(Scene &scene)
         }
         scene.render(*pbrProgram);
 
+        //imgui
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        bool showWindow = true;
+        // ImGui::ShowDemoWindow(&showWindow);
+        ImGui::Begin("Shit", &showWindow);
+        ImGui::Text("fuck me");
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
 void Renderer::processInput(GLFWwindow *window)

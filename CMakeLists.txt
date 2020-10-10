@@ -29,7 +29,15 @@ include_directories(
     "libs/stb/"
 )
 
-file(GLOB SOURCE_FILES "src/glad.c" "src/*.cpp")
+file(GLOB SOURCE_FILES 
+    "src/glad.c" 
+    "src/*.cpp" 
+    "libs/imgui/imgui.cpp"
+    "libs/imgui/examples/imgui_impl_opengl3.cpp"
+    "libs/imgui/examples/imgui_impl_glfw.cpp"
+    "libs/imgui/imgui_draw.cpp"
+    "libs/imgui/imgui_widgets.cpp"
+)
 
 add_executable(pbf ${SOURCE_FILES})
 
