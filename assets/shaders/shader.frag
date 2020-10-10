@@ -4,7 +4,6 @@ out vec4 FragColor;
 in vec2 uv;
 in vec3 pos;
 in vec3 normal;
-in vec4 lightSpaceFragPos[4];
 
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
@@ -29,6 +28,7 @@ const float PI = 3.14159265359;
 
 uniform samplerCube depthCubeMap[MAX_LIGHT];
 
+uniform int mode;
 
 vec3 getNormalFromMap()
 {
@@ -87,28 +87,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-bool isInShadow(vec3 fragPos, int i){
-    // get vector between fragment position and light position
-    vec3 fragToLight = fragPos - lightPos[i];
-    // use the light to fragment vector to sample from the depth map    
-    float closestDepth = texture(depthCubeMap[i], fragToLight).r;
-    // it is currently in linear range between [0,1]. Re-transform back to original value
-    closestDepth *= far_plane;
-    // now get current linear depth as the length between the fragment and light position
-    float currentDepth = length(fragToLight);
-    // now test for shadows
-    float bias = 0.0005; 
-
-    return currentDepth - bias >= closestDepth;
-}
-
-vec3 visualizeShadow(vec3 fragPos, int i){
-    vec3 fragToLight = fragPos - lightPos[i];
-    // use the light to fragment vector to sample from the depth map    
-    float closestDepth = texture(depthCubeMap[i], fragToLight).r;
-    // it is currently in linear range between [0,1]. Re-transform back to original value
-    return vec3(closestDepth);
-}
 
 void main(){
 
@@ -116,7 +94,7 @@ void main(){
     float metallic = texture(metallicRoughnessMap, uv).b;
     float roughness = texture(metallicRoughnessMap, uv).g;
     float ao = 1;
-
+    float alpha = pow(texture(albedoMap, uv).rgba, vec4(2.2)).a;
     vec3 N = getNormalFromMap();
     vec3 V = normalize(camPos - pos);
 
@@ -125,14 +103,16 @@ void main(){
 
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < numLights; i++){
-        if(isInShadow(pos, i)){
-            continue;
-        }
+        
         vec3 L = normalize(lightPos[i] - pos);
         vec3 H = normalize(V + L);
-        float distance = length(lightPos[i] - pos);
-        float attenuation = 1.0 / (distance * distance);
+        float r = length(lightPos[i] - pos);
+        float attenuation = 1.0 / (r * r);
         vec3 radiance = 10 * lightColor[i] * attenuation;
+
+        float depthComponent = texture(depthCubeMap[i], L).r;
+        float lightRange = depthComponent * far_plane;
+        float shadow = (r <= lightRange + 0.0005) ? 0.0 : 1.0;
 
         float NDF = DistributionGGX(N, H, roughness);   
         float G   = GeometrySmith(N, V, L, roughness);      
@@ -142,15 +122,30 @@ void main(){
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
         vec3 specular = nominator / denominator;
 
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;
+        vec3 k_s = F;
+        vec3 k_d = vec3(1.0) - k_s;
+        k_d *= 1.0 - metallic;
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+
+        if (mode % 3 == 0)
+        {
+            Lo += (k_d * albedo / PI + specular) * radiance * NdotL;
+        }
+        else if (mode % 3 == 1)
+        {
+            Lo += (k_d * albedo / PI + specular) * radiance * NdotL * (1 - shadow);
+        }
+        else if (mode % 3 == 2)
+        {
+            // Lo += r >= lightRange ? 0.0 : 1.0;
+            Lo += vec3(depthComponent, r / far_plane, shadow);
+            // Lo += vec3(lightRange / r);
+        }
+        // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * shadow;
         // Lo += visualizeShadow(pos, i);
     }
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.03) * albedo * ao * ((mode % 3 == 2) ? 0.0 : 1.0);
     
     vec3 color = ambient + Lo;
 
@@ -159,7 +154,6 @@ void main(){
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
-    // FragColor = vec4(visualizeShadow(pos,0), 1.0);
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, alpha);
 }
 

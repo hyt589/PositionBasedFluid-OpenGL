@@ -38,6 +38,7 @@ public:
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
+            deactivate();
             return;
         }
         GL((*f)(loc, value));
@@ -51,6 +52,7 @@ public:
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
+            deactivate();
             return;
         }
         GL((*f)(loc, 1, glm::value_ptr(value)));
@@ -64,6 +66,7 @@ public:
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
+            deactivate();
             return;
         }
         GL((*f)(loc, 1, GL_FALSE, glm::value_ptr(value)));
