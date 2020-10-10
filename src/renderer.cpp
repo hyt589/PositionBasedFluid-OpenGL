@@ -251,8 +251,8 @@ void Renderer::render(Scene &scene)
         {
             ImGui::Begin("Menu");
             {
-                // ImGui::BeginChild("Info", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysAutoResize);
-                ImGui::BeginGroup();
+                ImGui::BeginChild("Info", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysAutoResize);
+                // ImGui::BeginGroup();
                 ImGui::Text("Frame Rate: %f", fps);
                 for (int i = 0; i < scene.numLights; i++)
                 {
@@ -262,13 +262,13 @@ void Renderer::render(Scene &scene)
                     ImGui::Text("Light color[%d] : (%f, %f, %f)", i, color.x, color.y, color.z);
                 }
                 ImGui::Text("Cam Pos: (%f, %f, %f)", cam->pos.x, cam->pos.y, cam->pos.z);
-                ImGui::EndGroup();
-                ImGui::GetForegroundDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
-                // ImGui::EndChild();
+                // ImGui::EndGroup();
+                // ImGui::GetForegroundDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
+                ImGui::EndChild();
             }
             {
-                // ImGui::BeginChild("Light Tuner", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysAutoResize);
-                ImGui::BeginGroup();
+                ImGui::BeginChild("Light Tuner", ImVec2(0, 300), true, ImGuiWindowFlags_AlwaysAutoResize);
+                // ImGui::BeginGroup();
                 for (int i = 0; i < scene.numLights; i++)
                 {
                     auto & light = scene.lights[i];
@@ -284,9 +284,9 @@ void Renderer::render(Scene &scene)
                     ImGui::SliderFloat3("pos", pos, -10.f, 30.f, "%f", 1.0f);
                     light.position = glm::vec3(pos[0], pos[1], pos[2]);
                 }
-                ImGui::EndGroup();
-                ImGui::GetForegroundDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
-                // ImGui::EndChild();
+                // ImGui::EndGroup();
+                // ImGui::GetForegroundDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
+                ImGui::EndChild();
             }
             
             ImGui::End();
