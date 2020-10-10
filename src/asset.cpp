@@ -10,7 +10,7 @@ Mesh::Mesh(
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
-    init();
+    // init();
 }
 
 void Mesh::Draw(Program &program, bool withTex){
@@ -19,7 +19,7 @@ void Mesh::Draw(Program &program, bool withTex){
     
     // name = "mat_projection";
     // program.setUniform(name, mat_perspective_projection, glUniformMatrix4fv);
-    
+    init();
     if(withTex)
     {
         std::set<std::string> textureTypes;

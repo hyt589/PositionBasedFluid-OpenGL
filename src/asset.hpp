@@ -28,12 +28,12 @@ struct Texture
 class Mesh
 {
 private:
-    unsigned int VAO, VBO, EBO;
+    unsigned int VAO = 0, VBO = 0, EBO = 0;
     void init()
     {
-        GL(glGenVertexArrays(1, &VAO));
-        GL(glGenBuffers(1, &VBO));
-        GL(glGenBuffers(1, &EBO));
+        if (VAO == 0) GL(glGenVertexArrays(1, &VAO));
+        if (VBO == 0) GL(glGenBuffers(1, &VBO));
+        if (EBO == 0) GL(glGenBuffers(1, &EBO));
 
         GL(glBindVertexArray(VAO));
 

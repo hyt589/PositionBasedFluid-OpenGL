@@ -75,7 +75,7 @@ namespace R
     {
     public:
         virtual void init() = 0;
-        virtual void renderFrame(Scene & s) = 0;
+        virtual void renderFrame(Scene & s, Camera * cam) = 0;
     };
 
     class Ogl_PbrShadowmap_Renderer : Renderer
@@ -86,5 +86,6 @@ namespace R
         Program * shadowCubemapProgram;
     public:
         void init();
+        void renderFrame(Scene & s, Camera * cam);
     };
 }

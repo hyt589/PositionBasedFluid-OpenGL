@@ -51,7 +51,7 @@ inline GLenum glCheckError_(const char *file, int line)
             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
         }
         LOG_ERR(error + " | " << file << " (" << line << ")")
-        throw error;
+        // throw error;
     }
     return errorCode;
 }

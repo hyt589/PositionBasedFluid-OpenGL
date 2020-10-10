@@ -36,7 +36,7 @@ Renderer::Renderer(JSON &config)
                               config["renderer"]["resolution"]["height"],
                               title.c_str(),
                               NULL, NULL);
-    guiWindow = glfwCreateWindow(400, 600, "GUI", NULL, NULL);
+    guiWindow = glfwCreateWindow(400, 600, "GUI", NULL, window);
 
     glfwGetWindowSize(window, &w, &h);
     if (window == NULL)
@@ -122,27 +122,38 @@ void Renderer::render(Scene &scene)
     // #endif
 
     uint depthCubeMap[MAX_LIGHTS], depthMapFBO[MAX_LIGHTS];
+    GL(glGenFramebuffers(MAX_LIGHTS, depthMapFBO));
+    GL(glGenTextures(MAX_LIGHTS, depthCubeMap));
     for (int i = 0; i < scene.numLights; i++)
     {
-        GL(glGenFramebuffers(1, depthMapFBO + i));
-        GL(glGenTextures(1, depthCubeMap + i));
+        // GL(glGenFramebuffers(1, &(depthMapFBO[i])));
+        // GL(glGenTextures(1, &(depthCubeMap[i])));
         GL(glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap[i]));
         for (uint j = 0; j < 6; j++)
         {
             GL(glTexImage2D(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + j,
-                0, GL_DEPTH_COMPONENT, shadow_width, shadow_height,
+                0, GL_DEPTH_COMPONENT32F, shadow_width, shadow_height,
                 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
-            GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-            GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
         }
+        GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+        GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+        GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
         GL(glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO[i]));
         GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap[i], 0));
         GL(glDrawBuffer(GL_NONE));
         GL(glReadBuffer(GL_NONE));
+        auto fbStatus = GL(glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        if (fbStatus != GL_FRAMEBUFFER_COMPLETE)
+        {
+            LOG_ERR("Framebuffer incomplete!");
+        }
+        else
+        {
+            LOG_INFO("Depth buffer complete")
+        }
         GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
@@ -150,19 +161,22 @@ void Renderer::render(Scene &scene)
     GL(glEnable(GL_CULL_FACE));
 
     //init imgui
-    glfwMakeContextCurrent(guiWindow);
+    // glfwMakeContextCurrent(guiWindow);
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    auto guiContext = ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(guiWindow, true);
+    // ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 410");
     glfwMakeContextCurrent(window);
 
     float lastFrame = 0;
     while (!glfwWindowShouldClose(window) && !glfwWindowShouldClose(guiWindow))
     {
+        // glfwMakeContextCurrent(guiWindow);
+        // GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         glfwMakeContextCurrent(window);
 
@@ -175,16 +189,11 @@ void Renderer::render(Scene &scene)
 
         processInput(window);
 
-        GL(glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX));
-
         pbrProgram->setUniform("numLights", scene.numLights, glUniform1i);
 
         //render shadow map
-        GL(glViewport(0, 0, shadow_width, shadow_height));
         for (int i = 0; i < scene.numLights; i++)
         {
-            GL(glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO[i]));
-            GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
             auto light = scene.lights[i];
 
@@ -195,6 +204,13 @@ void Renderer::render(Scene &scene)
             shadowTransforms.push_back(shadowProj * glm::lookAt(light.position, light.position + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
             shadowTransforms.push_back(shadowProj * glm::lookAt(light.position, light.position + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
             shadowTransforms.push_back(shadowProj * glm::lookAt(light.position, light.position + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+
+            GL(glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO[i]));
+
+            GL(glViewport(0, 0, shadow_width, shadow_height));
+            GL(glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX));
+
+            GL(glClear(GL_DEPTH_BUFFER_BIT));
 
             for (int j = 0; j < shadowTransforms.size(); j++)
             {
@@ -211,8 +227,7 @@ void Renderer::render(Scene &scene)
         }
 
         //render scene with shadow map
-        GL(glClearColor(0.1f, 0.2f, 0.3f, 1.f));
-        GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
         glfwGetWindowSize(window, &w, &h);
         GL(glViewport(0, 0, w * 2, h * 2)); //times 2 on macOS
         auto mat_view = cam->getViewMatrix();
@@ -228,10 +243,11 @@ void Renderer::render(Scene &scene)
             pbrProgram->setUniform("depthCubeMap[" + std::to_string(i) + "]", i, glUniform1i);
             GL(glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap[i]));
         }
-        scene.render(*pbrProgram, true);
 
-        // glfwSwapBuffers(window);
-        // glfwPollEvents();
+        GL(glClearColor(0.1f, 0.2f, 0.3f, 1.f));
+        GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        scene.render(*pbrProgram, true);
+        
 
         //imgui
         glfwMakeContextCurrent(guiWindow);
@@ -260,7 +276,7 @@ void Renderer::render(Scene &scene)
                 ImGui::BeginGroupPanel("Light parameters");
                 for (int i = 0; i < scene.numLights; i++)
                 {
-                    auto & light = scene.lights[i];
+                    auto &light = scene.lights[i];
                     float color[3] = {light.color.x, light.color.y, light.color.z};
                     ImGui::ColorPicker3("Color", color);
                     light.color = glm::vec3(color[0], color[1], color[2]);
@@ -272,7 +288,13 @@ void Renderer::render(Scene &scene)
                 }
                 ImGui::EndGroupPanel();
             }
-            
+            {
+                ImGui::BeginGroupPanel("Image");
+                ImGui::Image((ImTextureID)1, ImVec2(400, 400), ImVec2(0, 1), ImVec2(1, 0));
+                // ImGui::ShowMetricsWindow();
+                ImGui::EndGroupPanel();
+            }
+
             ImGui::End();
         }
 

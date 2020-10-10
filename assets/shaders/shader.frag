@@ -87,6 +87,17 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
+float VectorToDepthValue(vec3 Vec)
+{
+    vec3 AbsVec = abs(Vec);
+    float LocalZcomp = max(AbsVec.x, max(AbsVec.y, AbsVec.z));
+
+    const float f = 2048.0;
+    const float n = 1.0;
+    float NormZComp = (f+n) / (f-n) - (2*f*n)/(f-n)/LocalZcomp;
+    return (NormZComp + 1.0) * 0.5;
+}
+
 
 void main(){
 
@@ -138,7 +149,7 @@ void main(){
         else if (mode % 3 == 2)
         {
             // Lo += r >= lightRange ? 0.0 : 1.0;
-            Lo += vec3(shadow);
+            Lo += vec3(depthComponent);
             // Lo += vec3(lightRange / r);
         }
         // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * shadow;
