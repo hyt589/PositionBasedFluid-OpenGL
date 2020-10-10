@@ -38,3 +38,53 @@ public:
     friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 };
 
+/*
+class app
+{
+    window;
+    renderer;
+    scene;
+    gui;
+
+    void init(){
+        create window;
+        load openGL;
+        init renderer;
+        load scene;
+        init gui;
+    }
+
+    void run(){
+        renderer.render(scene)
+    }
+}
+
+class renderer
+{
+    framebuffer;
+
+    void init(){
+        create framebuffer;
+    }
+}
+*/
+
+namespace R
+{
+    class Renderer
+    {
+    public:
+        virtual void init() = 0;
+        virtual void renderFrame(Scene & s) = 0;
+    };
+
+    class Ogl_PbrShadowmap_Renderer : Renderer
+    {
+    private:
+        GLFWwindow * appWindow;
+        Program * ggxLightingProgram;
+        Program * shadowCubemapProgram;
+    public:
+        void init();
+    };
+}

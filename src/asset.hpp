@@ -74,7 +74,7 @@ public:
         std::vector<unsigned int> indices,
         std::vector<Texture> textures
     );
-    void Draw(Program &program);
+    void Draw(Program &program, bool withtTex);
     ~Mesh();
 };
 
@@ -242,7 +242,7 @@ public:
     glm::vec3 orientation = glm::vec3(0.f);
     float scale = 1.f;
     Model(std::string path);
-    void Draw(Program &program);
+    void Draw(Program &program, bool withTex);
     ~Model();
 };
 

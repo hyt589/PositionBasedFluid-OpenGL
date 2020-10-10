@@ -19,10 +19,10 @@ void Scene::addModel(glm::vec3 pos, glm::vec3 dir, std::unique_ptr<Model> model)
     models.push_back(std::move(model));
 }
 
-void Scene::render(Program & p){
+void Scene::render(Program & p, bool showTexture){
     
     for(auto & model : models)
     {
-        model->Draw(p);
+        model->Draw(p, showTexture);
     }
 }

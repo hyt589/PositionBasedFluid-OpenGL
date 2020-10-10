@@ -205,7 +205,7 @@ void Renderer::render(Scene &scene)
             }
             shadowProgram->setUniform("lightPos", light.position, glUniform3fv);
 
-            scene.render(*shadowProgram);
+            scene.render(*shadowProgram, false);
 
             GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
         }
@@ -228,7 +228,7 @@ void Renderer::render(Scene &scene)
             pbrProgram->setUniform("depthCubeMap[" + std::to_string(i) + "]", i, glUniform1i);
             GL(glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap[i]));
         }
-        scene.render(*pbrProgram);
+        scene.render(*pbrProgram, true);
 
         // glfwSwapBuffers(window);
         // glfwPollEvents();

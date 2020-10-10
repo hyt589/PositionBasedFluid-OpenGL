@@ -23,7 +23,7 @@ public:
     Scene(){};
     void addLight(glm::vec3 pos, glm::vec3 color, float em);
     void addModel(glm::vec3 pos, glm::vec3 dir, std::unique_ptr<Model> model);
-    void render(Program & p);
+    void render(Program & p, bool showTexture);
     ~Scene(){};
 };
 

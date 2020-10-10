@@ -13,20 +13,23 @@ Mesh::Mesh(
     init();
 }
 
-void Mesh::Draw(Program &program){
+void Mesh::Draw(Program &program, bool withTex){
     // program.use();
 
     
     // name = "mat_projection";
     // program.setUniform(name, mat_perspective_projection, glUniformMatrix4fv);
     
-    std::set<std::string> textureTypes;
-    for(size_t i = 0; i < textures.size(); i++){
-        GL(glActiveTexture(GL_TEXTURE0 + i + MAX_LIGHTS));
-        program.setUniform<GLint>(textures[i].type, i + MAX_LIGHTS, glUniform1i);
-        GL(glBindTexture(GL_TEXTURE_2D, textures[i].id));
+    if(withTex)
+    {
+        std::set<std::string> textureTypes;
+        for(size_t i = 0; i < textures.size(); i++){
+            GL(glActiveTexture(GL_TEXTURE0 + i + MAX_LIGHTS));
+            program.setUniform<GLint>(textures[i].type, i + MAX_LIGHTS, glUniform1i);
+            GL(glBindTexture(GL_TEXTURE_2D, textures[i].id));
+        }
+        GL(glActiveTexture(GL_TEXTURE0));
     }
-    GL(glActiveTexture(GL_TEXTURE0));
 
     program.activate();
     GL(glBindVertexArray(VAO));
@@ -34,7 +37,6 @@ void Mesh::Draw(Program &program){
     GL(glBindVertexArray(0));
     program.deactivate();
 }
-
 
 Mesh::~Mesh()
 {
@@ -46,7 +48,7 @@ Model::Model(std::string path)
     loadModel(path);
 }
 
-void Model::Draw(Program &program){
+void Model::Draw(Program &program, bool withTex){
     glm::mat4 mat_model(1);
     mat_model = glm::scale(mat_model, glm::vec3(scale));
     mat_model = glm::rotate(mat_model, glm::radians(orientation.x), glm::vec3(1.f, 0.f, 0.f));
@@ -54,9 +56,9 @@ void Model::Draw(Program &program){
     mat_model = glm::rotate(mat_model, glm::radians(orientation.z), glm::vec3(0.f, 0.f, 1.f));
     mat_model = glm::translate(mat_model, position);
     program.setUniform("mat_model", mat_model, glUniformMatrix4fv);
-    for(auto mesh : meshes)
+    for(auto & mesh : meshes)
     {
-        mesh.Draw(program);
+        mesh.Draw(program, withTex);
     }
 }
 
