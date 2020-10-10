@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include "windowUtil.hpp"
+#include "gui.hpp"
 
 #ifndef NDEBUG
 void GLAPIENTRY
@@ -91,11 +92,6 @@ Renderer::Renderer(JSON &config)
         glm::vec3(0.f, 8.0f, 1.f),
         glm::vec3(1.0, 0.0, 0.0),
         glm::vec3(0.0, 1.0, 0.0));
-
-    // cam = new Camera(
-    //     glm::vec3(0.f, 1200.0f, 0.f),
-    //     glm::vec3(0.0, -1.0, 0.0),
-    //     glm::vec3(0.0, 0.0, -1.0));
 
     float aspect_ratio = (float)config["renderer"]["resolution"]["width"] / (float)config["renderer"]["resolution"]["height"];
     float near = 0.01f, far = 300.f;
@@ -215,7 +211,7 @@ void Renderer::render(Scene &scene)
         }
 
         //render scene with shadow map
-        // GL(glClearColor(0.1f, 0.2f, 0.3f, 1.f));
+        GL(glClearColor(0.1f, 0.2f, 0.3f, 1.f));
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         glfwGetWindowSize(window, &w, &h);
         GL(glViewport(0, 0, w * 2, h * 2)); //times 2 on macOS
@@ -240,9 +236,6 @@ void Renderer::render(Scene &scene)
         //imgui
         glfwMakeContextCurrent(guiWindow);
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        // int gw, gh;
-        // glfwGetWindowSize(guiWindow, &gw, &gh);
-        // GL(glViewport(0, 0, gw, gh));
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -251,8 +244,7 @@ void Renderer::render(Scene &scene)
         {
             ImGui::Begin("Menu");
             {
-                ImGui::BeginChild("Info", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysAutoResize);
-                // ImGui::BeginGroup();
+                ImGui::BeginGroupPanel("Info");
                 ImGui::Text("Frame Rate: %f", fps);
                 for (int i = 0; i < scene.numLights; i++)
                 {
@@ -262,31 +254,23 @@ void Renderer::render(Scene &scene)
                     ImGui::Text("Light color[%d] : (%f, %f, %f)", i, color.x, color.y, color.z);
                 }
                 ImGui::Text("Cam Pos: (%f, %f, %f)", cam->pos.x, cam->pos.y, cam->pos.z);
-                // ImGui::EndGroup();
-                // ImGui::GetForegroundDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
-                ImGui::EndChild();
+                ImGui::EndGroupPanel();
             }
             {
-                ImGui::BeginChild("Light Tuner", ImVec2(0, 300), true, ImGuiWindowFlags_AlwaysAutoResize);
-                // ImGui::BeginGroup();
+                ImGui::BeginGroupPanel("Light parameters");
                 for (int i = 0; i < scene.numLights; i++)
                 {
                     auto & light = scene.lights[i];
                     float color[3] = {light.color.x, light.color.y, light.color.z};
-                    ImGui::ColorPicker3("Light Color", color);
+                    ImGui::ColorPicker3("Color", color);
                     light.color = glm::vec3(color[0], color[1], color[2]);
-                    // ImGui::SliderFloat("pos.x", &light.position.x, -10.f, 30.f, "%f", 1.0f);
-                    // // ImGui::SameLine();
-                    // ImGui::SliderFloat("pos.y", &light.position.y, -10.f, 30.f, "%f", 1.0f);
-                    // // ImGui::SameLine();
-                    // ImGui::SliderFloat("pos.z", &light.position.z, -10.f, 30.f, "%f", 1.0f);
                     float pos[3] = {light.position.x, light.position.y, light.position.z};
-                    ImGui::SliderFloat3("pos", pos, -10.f, 30.f, "%f", 1.0f);
+                    ImGui::NewLine();
+                    ImGui::SliderFloat3("Position", pos, -10.f, 30.f, "%f", 1.0f);
                     light.position = glm::vec3(pos[0], pos[1], pos[2]);
+                    ImGui::SliderFloat("Emission", &light.emission, 0.f, 3000.f, "%f", 1.f);
                 }
-                // ImGui::EndGroup();
-                // ImGui::GetForegroundDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
-                ImGui::EndChild();
+                ImGui::EndGroupPanel();
             }
             
             ImGui::End();
