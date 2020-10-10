@@ -18,6 +18,8 @@ int main(int argc, char const *argv[])
     
     Application app(config);
     app.run();
+
+    
     
     return 0;
 }

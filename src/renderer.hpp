@@ -10,6 +10,7 @@ private:
     Program * pbrProgram;
     Program * shadowProgram;
     GLFWwindow * window;
+    GLFWwindow * guiWindow;
     Camera * cam;
     uint shadow_width, shadow_height;
     glm::mat4 shadowProj;

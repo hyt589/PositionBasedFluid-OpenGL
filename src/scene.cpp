@@ -7,7 +7,7 @@ void Scene::addLight(glm::vec3 pos, glm::vec3 color, float em){
     }
     Light l;
     l.position = pos;
-    l.color = color;
+    l.color = glm::clamp(color, glm::vec3(0.f), glm::vec3(1.f));
     l.emission = em;
     lights[numLights] = l;
     numLights++;

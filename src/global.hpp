@@ -19,6 +19,7 @@
 #include <memory>
 #include <array>
 #include <any>
+#include <thread>
 
 using JSON = nlohmann::json;
 

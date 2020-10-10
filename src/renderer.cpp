@@ -35,6 +35,7 @@ Renderer::Renderer(JSON &config)
                               config["renderer"]["resolution"]["height"],
                               title.c_str(),
                               NULL, NULL);
+    guiWindow = glfwCreateWindow(400, 600, "GUI", NULL, NULL);
 
     glfwGetWindowSize(window, &w, &h);
     if (window == NULL)
@@ -44,8 +45,16 @@ Renderer::Renderer(JSON &config)
         exit(1);
         return;
     }
+    if (guiWindow == NULL)
+    {
+        LOG_ERR("Renderer:: GUI window creation failed")
+        glfwTerminate();
+        exit(1);
+        return;
+    }
 
     glfwSetWindowUserPointer(window, this);
+    glfwSetWindowUserPointer(guiWindow, this);
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -110,21 +119,7 @@ Renderer::Renderer(JSON &config)
 
 void Renderer::render(Scene &scene)
 {
-    if (window == NULL)
-    {
-        LOG_ERR("Renderer:: Failed to create glfw window")
-        glfwTerminate();
-        return;
-    }
 
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        LOG_ERR("Renderer:: Failed to initialize GLAD");
-        return;
-    }
-
-    
     // #ifndef NDEBUG
     // GL(glEnable(GL_DEBUG_OUTPUT));
     // GL(glDebugMessageCallback( MessageCallback, 0 ));
@@ -155,27 +150,32 @@ void Renderer::render(Scene &scene)
         GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
-    //init imgui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 410");
-
     GL(glEnable(GL_DEPTH_TEST));
     GL(glEnable(GL_CULL_FACE));
 
+    //init imgui
+    glfwMakeContextCurrent(guiWindow);
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(guiWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+    glfwMakeContextCurrent(window);
+
     float lastFrame = 0;
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window) && !glfwWindowShouldClose(guiWindow))
     {
+
+        glfwMakeContextCurrent(window);
 
         float now = glfwGetTime();
         dt = now - lastFrame;
         lastFrame = now;
         float fps = 1.f / dt;
 
-        glfwSetWindowTitle(window, std::string("mode: " + std::to_string(mode%3) + ", FPS: " + std::to_string(fps)).c_str());
+        glfwSetWindowTitle(window, std::string("mode: " + std::to_string(mode % 3)).c_str());
 
         processInput(window);
 
@@ -200,7 +200,6 @@ void Renderer::render(Scene &scene)
             shadowTransforms.push_back(shadowProj * glm::lookAt(light.position, light.position + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
             shadowTransforms.push_back(shadowProj * glm::lookAt(light.position, light.position + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 
-
             for (int j = 0; j < shadowTransforms.size(); j++)
             {
                 shadowProgram->setUniform(
@@ -213,7 +212,6 @@ void Renderer::render(Scene &scene)
             scene.render(*shadowProgram);
 
             GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-            
         }
 
         //render scene with shadow map
@@ -236,20 +234,62 @@ void Renderer::render(Scene &scene)
         }
         scene.render(*pbrProgram);
 
+        // glfwSwapBuffers(window);
+        // glfwPollEvents();
+
         //imgui
+        glfwMakeContextCurrent(guiWindow);
+        GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        // int gw, gh;
+        // glfwGetWindowSize(guiWindow, &gw, &gh);
+        // GL(glViewport(0, 0, gw, gh));
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        bool showWindow = true;
-        // ImGui::ShowDemoWindow(&showWindow);
-        ImGui::Begin("Shit", &showWindow);
-        ImGui::Text("fuck me");
-        ImGui::End();
+        {
+            ImGui::Begin("Menu");
+            {
+                ImGui::BeginChild("Info", ImVec2(0, 100));
+                ImGui::Text("Frame Rate: %f", fps);
+                for (int i = 0; i < scene.numLights; i++)
+                {
+                    auto pos = scene.lights[i].position;
+                    auto color = scene.lights[i].color;
+                    ImGui::Text("Light pos[%d]: (%f, %f, %f)", i, pos.x, pos.y, pos.z);
+                    ImGui::Text("Light color[%d] : (%f, %f, %f)", i, color.x, color.y, color.z);
+                }
+                ImGui::Text("Cam Pos: (%f, %f, %f)", cam->pos.x, cam->pos.y, cam->pos.z);
+                ImGui::EndChild();
+            }
+            {
+                ImGui::BeginChild("Light Tuner", ImVec2(0, 500));
+                for (int i = 0; i < scene.numLights; i++)
+                {
+                    auto & light = scene.lights[i];
+                    float color[3] = {light.color.x, light.color.y, light.color.z};
+                    ImGui::ColorPicker3("Light Color", color);
+                    light.color = glm::vec3(color[0], color[1], color[2]);
+                    // ImGui::SliderFloat("pos.x", &light.position.x, -10.f, 30.f, "%f", 1.0f);
+                    // // ImGui::SameLine();
+                    // ImGui::SliderFloat("pos.y", &light.position.y, -10.f, 30.f, "%f", 1.0f);
+                    // // ImGui::SameLine();
+                    // ImGui::SliderFloat("pos.z", &light.position.z, -10.f, 30.f, "%f", 1.0f);
+                    float pos[3] = {light.position.x, light.position.y, light.position.z};
+                    ImGui::SliderFloat3("pos", pos, -10.f, 30.f, "%f", 1.0f);
+                    light.position = glm::vec3(pos[0], pos[1], pos[2]);
+                }
+                ImGui::EndChild();
+            }
+            
+            ImGui::End();
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        glfwSwapBuffers(guiWindow);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -259,6 +299,7 @@ void Renderer::render(Scene &scene)
     ImGui::DestroyContext();
 
     glfwDestroyWindow(window);
+    glfwDestroyWindow(guiWindow);
     glfwTerminate();
 }
 
@@ -306,8 +347,4 @@ void Renderer::processInput(GLFWwindow *window)
     {
         cam->pos -= glm::vec3(0, 1, 0) * cam->speed * dt;
     }
-
-
 }
-
-
