@@ -20,6 +20,7 @@
 #include <array>
 #include <any>
 #include <thread>
+#include <csignal>
 
 using JSON = nlohmann::json;
 
@@ -27,15 +28,18 @@ using JSON = nlohmann::json;
 #define LOG_INFO(msg) std::cout << "[Info] " << msg << std::endl;
 #define LOG_ERR(msg) std::cerr << "[Error] " << msg << std::endl;
 #define LOG_WARN(msg) std::cout << "[Warning] " << msg << std::endl;
+#define BREAK_POINT LOG_ERR("Execution Paused from file: '" << __FILE__ << "', line " << __LINE__) std::raise(SIGINT)
 #else
 #define LOG_INFO(msg)
 #define LOG_ERR(msg)
 #define LOG_WARN(msg)
+#define BREAK_POINT
 #endif // !NDEBUG
 
 
-inline GLenum glCheckError_(const char *file, int line)
+inline bool glCheckError_(const char * file, int line)
 {
+    bool err = false;
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR)
     {
@@ -50,18 +54,20 @@ inline GLenum glCheckError_(const char *file, int line)
             case GL_OUT_OF_MEMORY:                 error = "GL_OUT_OF_MEMORY"; break;
             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
         }
-        LOG_ERR(error + " | " << file << " (" << line << ")")
-        // throw error;
+        LOG_ERR(error << " occured at file '" << file << "', line " << line);
+        err = true;
+        // std::raise(SIGINT);
     }
-    return errorCode;
+    return err;
 }
-#define glCheckError() glCheckError_(__FILE__, __LINE__) 
+#define glCheckError if(glCheckError_(__FILE__, __LINE__)) std::raise(SIGINT)
 
 #ifdef NDEBUG
 #define GL(glFunctionCall) glFunctionCall
 #else
-#define GL(glFunctionCall) glFunctionCall; glCheckError()
+#define GL(glFunctionCall) glFunctionCall; glCheckError
 #endif // NDEBUG
+
 
 template<typename Fn, Fn fn, typename... Args>
 typename std::result_of<Fn(Args...)>::type

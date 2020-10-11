@@ -38,6 +38,7 @@ public:
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
+            BREAK_POINT;
             deactivate();
             return;
         }
@@ -52,6 +53,7 @@ public:
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
+            BREAK_POINT;
             deactivate();
             return;
         }
@@ -66,6 +68,7 @@ public:
         auto loc = GL(glGetUniformLocation(ID, name.c_str()));
         if(loc == -1){
             LOG_ERR("Uniform not found: " + name)
+            BREAK_POINT;
             deactivate();
             return;
         }

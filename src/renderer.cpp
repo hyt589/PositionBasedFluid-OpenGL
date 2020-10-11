@@ -72,6 +72,7 @@ Renderer::Renderer(JSON &config)
 
     auto pbrVertShader = std::make_unique<Shader>(ShaderType::VERT, (std::string)config["assets"]["shaders"]["vshader"]);
     auto pbrFragShader = std::make_unique<Shader>(ShaderType::FRAG, (std::string)config["assets"]["shaders"]["fshader"]);
+    auto pbrGeomShader = std::make_unique<Shader>(ShaderType::GEO, (std::string)config["assets"]["shaders"]["gshader"]);
     auto depthVertShader = std::make_unique<Shader>(ShaderType::VERT, (std::string)config["assets"]["depthShaders"]["v"]);
     auto depthFragShader = std::make_unique<Shader>(ShaderType::FRAG, (std::string)config["assets"]["depthShaders"]["f"]);
     auto depthGeomShader = std::make_unique<Shader>(ShaderType::GEO, (std::string)config["assets"]["depthShaders"]["g"]);
@@ -89,26 +90,25 @@ Renderer::Renderer(JSON &config)
     shadow_height = config["renderer"]["shadowMap"]["height"];
 
     cam = new Camera(
-        glm::vec3(0.f, 8.0f, 1.f),
-        glm::vec3(1.0, 0.0, 0.0),
+        glm::vec3(-1.f, 18.0f, 1.f),
+        glm::vec3(0.0, -1.0, 0.0),
         glm::vec3(0.0, 1.0, 0.0));
 
     float aspect_ratio = (float)config["renderer"]["resolution"]["width"] / (float)config["renderer"]["resolution"]["height"];
-    float near = 0.01f, far = 300.f;
+#define Z_NEAR 0.01f
+#define Z_FAR 50.f
 
     auto mat_perspective_projection = glm::perspective(
         glm::radians((float)config["renderer"]["fov"]),
         aspect_ratio,
-        near, far);
+        Z_NEAR, Z_FAR);
 
     std::string name = "mat_projection";
     pbrProgram->setUniform(name, mat_perspective_projection, glUniformMatrix4fv);
-    pbrProgram->setUniform("far_plane", far, glUniform1f);
-
-    shadowProgram->setUniform("far_plane", far, glUniform1f);
+    pbrProgram->setUniform("far_plane", Z_FAR, glUniform1f);
 
     float shadow_aspect = (float)shadow_width / (float)shadow_height;
-    shadowProj = glm::perspective(glm::radians(90.f), shadow_aspect, near, far);
+    shadowProj = glm::perspective(glm::radians(90.f), shadow_aspect, Z_NEAR, Z_FAR);
 
     LOG_INFO("Renderer::Initialization complete.")
 }
@@ -122,37 +122,40 @@ void Renderer::render(Scene &scene)
     // #endif
 
     uint depthCubeMap[MAX_LIGHTS], depthMapFBO[MAX_LIGHTS];
-    GL(glGenFramebuffers(MAX_LIGHTS, depthMapFBO));
-    GL(glGenTextures(MAX_LIGHTS, depthCubeMap));
+    // GL(glGenFramebuffers(MAX_LIGHTS, depthMapFBO));
+    // GL(glGenTextures(MAX_LIGHTS, depthCubeMap));
     for (int i = 0; i < scene.numLights; i++)
     {
-        // GL(glGenFramebuffers(1, &(depthMapFBO[i])));
-        // GL(glGenTextures(1, &(depthCubeMap[i])));
+        GL(glActiveTexture(GL_TEXTURE0 + i));
+        GL(glGenFramebuffers(1, &(depthMapFBO[i])));
+        GL(glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO[i]));
+        GL(glGenTextures(1, &(depthCubeMap[i])));
         GL(glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap[i]));
         for (uint j = 0; j < 6; j++)
         {
             GL(glTexImage2D(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + j,
-                0, GL_DEPTH_COMPONENT32F, shadow_width, shadow_height,
-                0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+                0, GL_RGBA16F, shadow_width, shadow_height,
+                0, GL_RGBA, GL_FLOAT, NULL));
         }
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-        GL(glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO[i]));
-        GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap[i], 0));
-        GL(glDrawBuffer(GL_NONE));
-        GL(glReadBuffer(GL_NONE));
+        GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, depthCubeMap[i], 0));
+        GL(glDrawBuffer(GL_COLOR_ATTACHMENT0));
+        // GL(glReadBuffer(GL_NONE));
         auto fbStatus = GL(glCheckFramebufferStatus(GL_FRAMEBUFFER));
         if (fbStatus != GL_FRAMEBUFFER_COMPLETE)
         {
             LOG_ERR("Framebuffer incomplete!");
+            BREAK_POINT;
         }
         else
         {
-            LOG_INFO("Depth buffer complete")
+            LOG_INFO("Depth buffer " + std::to_string(depthMapFBO[i]) + " complete")
+            LOG_INFO("depthCUbeMap[" + std::to_string(i) + "] = " + std::to_string(depthCubeMap[i]))
         }
         GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
@@ -172,6 +175,7 @@ void Renderer::render(Scene &scene)
     ImGui_ImplOpenGL3_Init("#version 410");
     glfwMakeContextCurrent(window);
 
+    LOG_INFO("Rendering starting");
     float lastFrame = 0;
     while (!glfwWindowShouldClose(window) && !glfwWindowShouldClose(guiWindow))
     {
@@ -185,17 +189,22 @@ void Renderer::render(Scene &scene)
         lastFrame = now;
         float fps = 1.f / dt;
 
-        glfwSetWindowTitle(window, std::string("mode: " + std::to_string(mode % 3)).c_str());
+        glfwSetWindowTitle(window, std::string("mode: " + std::to_string(mode % 5)).c_str());
 
         processInput(window);
 
         pbrProgram->setUniform("numLights", scene.numLights, glUniform1i);
 
+        GL(glClearColor(0.1f, 0.1f, 0.1f, 1.f));
+        GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        GL(glEnable(GL_DEPTH_TEST));
+
         //render shadow map
         for (int i = 0; i < scene.numLights; i++)
         {
 
-            auto light = scene.lights[i];
+            auto & light = scene.lights[i];
+            light.position = cam->pos;
 
             std::vector<glm::mat4> shadowTransforms;
             shadowTransforms.push_back(shadowProj * glm::lookAt(light.position, light.position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
@@ -211,7 +220,7 @@ void Renderer::render(Scene &scene)
             GL(glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX));
 
             GL(glClear(GL_DEPTH_BUFFER_BIT));
-
+            shadowProgram->setUniform("far_plane", Z_FAR, glUniform1f);
             for (int j = 0; j < shadowTransforms.size(); j++)
             {
                 shadowProgram->setUniform(
@@ -223,13 +232,16 @@ void Renderer::render(Scene &scene)
 
             scene.render(*shadowProgram, false);
 
+            // GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+            // GL(glDrawBuffers(1, drawBuffers));
+
             GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
         }
 
         //render scene with shadow map
 
-        glfwGetWindowSize(window, &w, &h);
-        GL(glViewport(0, 0, w * 2, h * 2)); //times 2 on macOS
+        // glfwGetWindowSize(window, &w, &h);
+
         auto mat_view = cam->getViewMatrix();
         pbrProgram->setUniform("mode", mode, glUniform1i);
         pbrProgram->setUniform("mat_view", mat_view, glUniformMatrix4fv);
@@ -244,10 +256,19 @@ void Renderer::render(Scene &scene)
             GL(glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap[i]));
         }
 
-        GL(glClearColor(0.1f, 0.2f, 0.3f, 1.f));
-        GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        scene.render(*pbrProgram, true);
         
+        if (mode % 5 == 0)
+        {
+            glfwSetWindowSize(window, shadow_width, shadow_height);
+            GL(glViewport(0, 0, shadow_width * 2, shadow_height * 2)); //times 2 on macOS
+            scene.render(*shadowProgram, false);
+        }
+        else
+        {
+            glfwSetWindowSize(window, w, h);
+            GL(glViewport(0, 0, w * 2, h * 2)); //times 2 on macOS
+            scene.render(*pbrProgram, true);
+        }
 
         //imgui
         glfwMakeContextCurrent(guiWindow);
@@ -264,8 +285,8 @@ void Renderer::render(Scene &scene)
                 ImGui::Text("Frame Rate: %f", fps);
                 for (int i = 0; i < scene.numLights; i++)
                 {
-                    auto pos = scene.lights[i].position;
-                    auto color = scene.lights[i].color;
+                    auto & pos = scene.lights[i].position;
+                    auto & color = scene.lights[i].color;
                     ImGui::Text("Light pos[%d]: (%f, %f, %f)", i, pos.x, pos.y, pos.z);
                     ImGui::Text("Light color[%d] : (%f, %f, %f)", i, color.x, color.y, color.z);
                 }
@@ -282,18 +303,18 @@ void Renderer::render(Scene &scene)
                     light.color = glm::vec3(color[0], color[1], color[2]);
                     float pos[3] = {light.position.x, light.position.y, light.position.z};
                     ImGui::NewLine();
-                    ImGui::SliderFloat3("Position", pos, -10.f, 30.f, "%f", 1.0f);
+                    ImGui::SliderFloat3("Position", pos, -80.f, 80.f, "%f", 1.0f);
                     light.position = glm::vec3(pos[0], pos[1], pos[2]);
                     ImGui::SliderFloat("Emission", &light.emission, 0.f, 3000.f, "%f", 1.f);
                 }
                 ImGui::EndGroupPanel();
             }
-            {
-                ImGui::BeginGroupPanel("Image");
-                ImGui::Image((ImTextureID)1, ImVec2(400, 400), ImVec2(0, 1), ImVec2(1, 0));
-                // ImGui::ShowMetricsWindow();
-                ImGui::EndGroupPanel();
-            }
+            // {
+            //     ImGui::BeginGroupPanel("Image");
+            //     ImGui::Image((ImTextureID)71, ImVec2(400, 400), ImVec2(0, 1), ImVec2(1, 0));
+            //     // ImGui::ShowMetricsWindow();
+            //     ImGui::EndGroupPanel();
+            // }
 
             ImGui::End();
         }
@@ -360,3 +381,6 @@ void Renderer::processInput(GLFWwindow *window)
         cam->pos -= glm::vec3(0, 1, 0) * cam->speed * dt;
     }
 }
+
+#undef Z_NEAR
+#undef Z_FAR

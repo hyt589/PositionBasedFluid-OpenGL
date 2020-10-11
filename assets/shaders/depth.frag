@@ -1,6 +1,7 @@
 #version 410 core
 
 in vec4 FragPos;
+out vec4 FragColor;
 
 uniform vec3 lightPos;
 uniform float far_plane;
@@ -16,5 +17,5 @@ void main()
     // write this as modified depth
     gl_FragDepth = lightDistance;
 
-    // gl_FragColor = vec4(lightDistance);
+    FragColor = vec4(lightDistance);
 }  

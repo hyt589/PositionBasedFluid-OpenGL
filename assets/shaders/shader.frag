@@ -87,18 +87,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-float VectorToDepthValue(vec3 Vec)
-{
-    vec3 AbsVec = abs(Vec);
-    float LocalZcomp = max(AbsVec.x, max(AbsVec.y, AbsVec.z));
-
-    const float f = 2048.0;
-    const float n = 1.0;
-    float NormZComp = (f+n) / (f-n) - (2*f*n)/(f-n)/LocalZcomp;
-    return (NormZComp + 1.0) * 0.5;
-}
-
-
 void main(){
 
     vec3 albedo = pow(texture(albedoMap, uv).rgb, vec3(2.2));
@@ -121,9 +109,9 @@ void main(){
         float attenuation = 1.0 / (r * r);
         vec3 radiance = 10 * lightColor[i] * attenuation;
 
-        float depthComponent = texture(depthCubeMap[i], -L).r;
-        float lightRange = depthComponent * far_plane;
-        float shadow = (r <= lightRange + 0.0005) ? 0.0 : 1.0;
+        // float depthComponent = texture(depthCubeMap[i], L).r;
+        // float lightRange = depthComponent * far_plane;
+        float shadow = (r <= texture(depthCubeMap[i], -L).r * far_plane + 0.15) ? 0.0 : 1.0;
 
         float NDF = DistributionGGX(N, H, roughness);   
         float G   = GeometrySmith(N, V, L, roughness);      
@@ -138,25 +126,28 @@ void main(){
         k_d *= 1.0 - metallic;
         float NdotL = max(dot(N, L), 0.0);
 
-        if (mode % 3 == 0)
+        if (mode % 5 == 1)
         {
             Lo += (k_d * albedo / PI + specular) * radiance * NdotL;
         }
-        else if (mode % 3 == 1)
+        else if (mode % 5 == 2)
         {
-            Lo += (k_d * albedo / PI + specular) * radiance * NdotL * (1 - shadow);
+            Lo += (k_d * albedo / PI + specular) * radiance * NdotL * (1-shadow);
         }
-        else if (mode % 3 == 2)
+        else if (mode % 5 == 3)
         {
             // Lo += r >= lightRange ? 0.0 : 1.0;
-            Lo += vec3(depthComponent);
-            // Lo += vec3(lightRange / r);
+            // Lo += vec3(r/far_plane);
+            Lo += vec3(texture(depthCubeMap[i], -L).g);
         }
-        // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * shadow;
-        // Lo += visualizeShadow(pos, i);
+        else if (mode % 5 == 4)
+        {
+            Lo += vec3(shadow);
+        }
+        // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * (1 - shadow);
     }
 
-    vec3 ambient = vec3(0.03) * albedo * ao * ((mode % 3 == 2) ? 0.0 : 1.0);
+    vec3 ambient = vec3(0.03) * albedo * ao * ((mode % 5 >= 3) ? 0.0 : 1.0);
     
     vec3 color = ambient + Lo;
 

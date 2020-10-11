@@ -45,6 +45,7 @@ Shader::Shader(ShaderType type, std::string path){
         char info[512];
         GL(glGetShaderInfoLog(ID, 512, NULL, info));
         LOG_ERR(info);
+        BREAK_POINT;
         return;
     }
     LOG_INFO(toString(type) + " successfully compiled")
@@ -74,13 +75,14 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
     if(!success){
         char info[512];
         GL(glGetProgramInfoLog(ID, 512, NULL, info));
-        LOG_ERR("Program linking error")
+        LOG_ERR("Program ID=" + std::to_string(ID) + " linking error")
         LOG_ERR(info)
+        BREAK_POINT;
         GL(glDeleteProgram(ID));
         return;
     }
     linking_success = true;
-    LOG_INFO("Program successfully linked")
+    LOG_INFO("Program ID=" + std::to_string(ID) + " successfully linked")
 }
 
 
