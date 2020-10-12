@@ -18,7 +18,7 @@ void GuiWindow(const char * name, std::function<void(Args ...)> f, Args & ...  p
 };
 
 template <typename ... Args>
-void GuiGroupPanel(const char * name, std::function<void(Args ...)> f, Args & ... params)
+void GuiGroupPanel(const char * name, std::function<void(Args ...)> f, ImVec2 & size = ImVec2(0,0), Args & ... params)
 {
     ImGui::BeginGroupPanel(name);
     f(params...);

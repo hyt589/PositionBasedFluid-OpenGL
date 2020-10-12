@@ -28,6 +28,7 @@ namespace R
     class OpenGLApplication : Application
     {
     private:
+        bool isInit = false;
     public:
         JSON config;
         Scene scene;
@@ -35,6 +36,8 @@ namespace R
         GLFWwindow *appWindow;
         Ogl_PbrShadowmap_Renderer renderer;
         int viewWidth, viewHeight;
+        float fov;
+        std::unordered_map<std::string, Program*> shaders;
         //load config;
         OpenGLApplication(JSON &j);
 
@@ -61,5 +64,6 @@ namespace R
         //     ImGui::Render();
         //     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         // };
+
     };
 } // namespace R

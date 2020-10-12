@@ -110,7 +110,7 @@ public:
     };
 
     template <typename ReturnType, typename ... Args>
-    void bindAndDo(std::function<ReturnType(Args ...)> const & callBack, Args ... params)
+    void bindAndDo(std::function<ReturnType(Args ...)> const & callBack, Args & ... params)
     {
         bind();
         callBack(params...);

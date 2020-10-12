@@ -27,5 +27,9 @@
             "g": "assets/shaders/depth.geom"
         },
         "scene": "assets/scenes/Sponza_Atrium_gltf/Sponza.gltf"
-    }
+    },
+    "fonts": {
+        "firaMedium": "/Users/hyt/Library/Fonts/FiraCode-Medium.ttf"
+    },
+    "fontSize": 15
 }

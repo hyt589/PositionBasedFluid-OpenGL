@@ -29,7 +29,7 @@ using JSON = nlohmann::json;
 #define LOG_INFO(msg) std::cout << "[Info] " << msg << std::endl;
 #define LOG_ERR(msg) std::cerr << "[Error] " << msg << std::endl;
 #define LOG_WARN(msg) std::cout << "[Warning] " << msg << std::endl;
-#define BREAK_POINT LOG_ERR("Execution Paused from file: '" << __FILE__ << "', line " << __LINE__) std::raise(SIGINT)
+#define BREAK_POINT LOG_WARN("Execution Paused from file: '" << __FILE__ << "', line " << __LINE__) std::raise(SIGINT)
 #else
 #define LOG_INFO(msg)
 #define LOG_ERR(msg)

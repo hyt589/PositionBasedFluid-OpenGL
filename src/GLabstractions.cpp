@@ -1,4 +1,4 @@
-#include "GLabsttractions.hpp"
+#include "GLabstractions.hpp"
 
 GLtex2D::GLtex2D(GLint internalFormat, GLenum format, GLenum type, GLsizei width, GLsizei height, GLint level, const GLvoid *data)
     : internalFormat(internalFormat), format(format), glDataType(type), width(width), height(height), level(level), data(data)

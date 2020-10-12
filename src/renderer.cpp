@@ -18,8 +18,13 @@ MessageCallback(GLenum source,
 }
 #endif // !NDEBUG
 
-void R::Ogl_PbrShadowmap_Renderer::renderPass(const Scene & s, const Camera & cam){}
-void R::Ogl_PbrShadowmap_Renderer::renderPassTex(const Scene & s, const Camera & cam, const GLuint & tex){}
+void R::Ogl_PbrShadowmap_Renderer::renderPass(const Scene &s, const Camera &cam)
+{
+}
+void R::Ogl_PbrShadowmap_Renderer::renderPassTex(const Scene &s, const Camera &cam, const I_GLtex &tex) 
+{
+
+}
 
 //=========================================================================
 
@@ -207,7 +212,7 @@ void Renderer::render(Scene &scene)
         for (int i = 0; i < scene.numLights; i++)
         {
 
-            auto & light = scene.lights[i];
+            auto &light = scene.lights[i];
             light.position = cam->pos;
 
             std::vector<glm::mat4> shadowTransforms;
@@ -260,7 +265,6 @@ void Renderer::render(Scene &scene)
             GL(glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap[i]));
         }
 
-        
         if (mode % 5 == 0)
         {
             glfwSetWindowSize(window, shadow_width, shadow_height);
@@ -289,8 +293,8 @@ void Renderer::render(Scene &scene)
                 ImGui::Text("Frame Rate: %f", fps);
                 for (int i = 0; i < scene.numLights; i++)
                 {
-                    auto & pos = scene.lights[i].position;
-                    auto & color = scene.lights[i].color;
+                    auto &pos = scene.lights[i].position;
+                    auto &color = scene.lights[i].color;
                     ImGui::Text("Light pos[%d]: (%f, %f, %f)", i, pos.x, pos.y, pos.z);
                     ImGui::Text("Light color[%d] : (%f, %f, %f)", i, color.x, color.y, color.z);
                 }

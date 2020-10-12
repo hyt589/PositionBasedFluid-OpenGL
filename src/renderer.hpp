@@ -3,6 +3,7 @@
 #include "ShaderProgram.hpp"
 #include "scene.hpp"
 #include "camera.hpp"
+#include "GLabstractions.hpp"
 
 class Renderer
 {
@@ -38,36 +39,7 @@ public:
     friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 };
 
-/*
-class app
-{
-    window;
-    renderer;
-    scene;
-    gui;
 
-    void init(){
-        create window;
-        load openGL;
-        init renderer;
-        load scene;
-        init gui;
-    }
-
-    void run(){
-        renderer.render(scene)
-    }
-}
-
-class renderer
-{
-    framebuffer;
-
-    void init(){
-        create framebuffer;
-    }
-}
-*/
 
 namespace R
 {
@@ -75,7 +47,7 @@ namespace R
     {
     public:
         virtual void renderPass(const Scene & s, const Camera & cam) = 0;
-        virtual void renderPassTex(const Scene & s, const Camera & cam, const GLuint & tex) = 0;
+        virtual void renderPassTex(const Scene & s, const Camera & cam, const I_GLtex & tex) = 0;
     };
 
     class Ogl_PbrShadowmap_Renderer : Renderer
@@ -83,14 +55,15 @@ namespace R
     private:
     public:
         GLFWwindow * appWindow;
-        Program * ggxLightingProgram;
-        Program * shadowCubemapProgram;
+        Program * shaderProgram;
+        glm::mat4 * mat_projection;
         Ogl_PbrShadowmap_Renderer(){};
         ~Ogl_PbrShadowmap_Renderer(){
-            delete ggxLightingProgram;
-            delete shadowCubemapProgram;
+            // delete ggxLightingProgram;
+            // delete shadowCubemapProgram;
+            delete shaderProgram;
         };
         void renderPass(const Scene & s, const Camera & cam) override;
-        void renderPassTex(const Scene & s, const Camera & cam, const GLuint & tex) override;
+        void renderPassTex(const Scene & s, const Camera & cam, const I_GLtex & tex) override;
     };
 }
