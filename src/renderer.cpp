@@ -18,6 +18,11 @@ MessageCallback(GLenum source,
 }
 #endif // !NDEBUG
 
+void R::Ogl_PbrShadowmap_Renderer::renderPass(const Scene & s, const Camera & cam){}
+void R::Ogl_PbrShadowmap_Renderer::renderPassTex(const Scene & s, const Camera & cam, const GLuint & tex){}
+
+//=========================================================================
+
 Renderer::Renderer(JSON &config)
 {
     glfwInit();
@@ -135,8 +140,8 @@ void Renderer::render(Scene &scene)
         {
             GL(glTexImage2D(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + j,
-                0, GL_RGBA16F, shadow_width, shadow_height,
-                0, GL_RGBA, GL_FLOAT, NULL));
+                0, GL_RGBA, shadow_width, shadow_height,
+                0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
         }
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -168,7 +173,6 @@ void Renderer::render(Scene &scene)
     IMGUI_CHECKVERSION();
     auto guiContext = ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(guiWindow, true);
     // ImGui_ImplGlfw_InitForOpenGL(window, true);

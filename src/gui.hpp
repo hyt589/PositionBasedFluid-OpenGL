@@ -8,3 +8,20 @@ namespace ImGui
     void BeginGroupPanel(const char *name, const ImVec2 &size = ImVec2(0.0f, 0.0f));
     void EndGroupPanel();
 } // namespace ImGui
+
+template <typename ... Args>
+void GuiWindow(const char * name, std::function<void(Args ...)> f, Args & ...  params)
+{
+    ImGui::Begin(name);
+    f(params...);
+    ImGui::End();
+};
+
+template <typename ... Args>
+void GuiGroupPanel(const char * name, std::function<void(Args ...)> f, Args & ... params)
+{
+    ImGui::BeginGroupPanel(name);
+    f(params...);
+    ImGui::EndGroupPanel();
+};
+

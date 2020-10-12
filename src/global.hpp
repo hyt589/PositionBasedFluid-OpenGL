@@ -21,6 +21,7 @@
 #include <any>
 #include <thread>
 #include <csignal>
+#include <functional>
 
 using JSON = nlohmann::json;
 

@@ -74,18 +74,23 @@ namespace R
     class Renderer
     {
     public:
-        virtual void init() = 0;
-        virtual void renderFrame(Scene & s, Camera * cam) = 0;
+        virtual void renderPass(const Scene & s, const Camera & cam) = 0;
+        virtual void renderPassTex(const Scene & s, const Camera & cam, const GLuint & tex) = 0;
     };
 
     class Ogl_PbrShadowmap_Renderer : Renderer
     {
     private:
+    public:
         GLFWwindow * appWindow;
         Program * ggxLightingProgram;
         Program * shadowCubemapProgram;
-    public:
-        void init();
-        void renderFrame(Scene & s, Camera * cam);
+        Ogl_PbrShadowmap_Renderer(){};
+        ~Ogl_PbrShadowmap_Renderer(){
+            delete ggxLightingProgram;
+            delete shadowCubemapProgram;
+        };
+        void renderPass(const Scene & s, const Camera & cam) override;
+        void renderPassTex(const Scene & s, const Camera & cam, const GLuint & tex) override;
     };
 }

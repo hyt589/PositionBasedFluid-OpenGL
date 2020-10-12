@@ -16,7 +16,11 @@ int main(int argc, char const *argv[])
     std::ifstream in(path);
     in >> config;
     
-    Application app(config);
+    // Application app(config);
+    // app.run();
+
+    R::OpenGLApplication app(config);
+    app.init();
     app.run();
 
     
