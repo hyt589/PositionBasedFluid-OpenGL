@@ -178,7 +178,7 @@ R::OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
     {
         LOG_WARN("Viewport size is larger than monitor size")
         LOG_WARN("Rendered scene might not fit on screen")
-        BREAK_POINT;
+        // BREAK_POINT;
     }
 
     std::string title = config["renderer"]["windowTitle"];
@@ -194,7 +194,7 @@ R::OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
     }
     glfwMakeContextCurrent(appWindow);
     // glfwSetWindowAttrib(appWindow, GLFW_VISIBLE, GLFW_FALSE);
-    glfwSetWindowAttrib(appWindow, GLFW_DECORATED, GLFW_FALSE);
+    // glfwSetWindowAttrib(appWindow, GLFW_DECORATED, GLFW_FALSE);
     glfwSetWindowAttrib(appWindow, GLFW_MAXIMIZED, GLFW_TRUE);
     glfwSetWindowUserPointer(appWindow, this);
     glfwSetCursorPosCallback(appWindow, cursorPosCallback);
@@ -233,7 +233,7 @@ void R::OpenGLApplication::init()
 
     //init camera
     renderer.cam = new Camera(
-        glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+        glm::vec3(0.f, 5.f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
     //init imgui
     guiInit();
@@ -255,6 +255,13 @@ void R::OpenGLApplication::init()
     depthShaders.push_back(std::move(depthFragShader));
     renderer.shaders[ShaderMode::SHADOW_MAP] = new Program(depthShaders);
 
+    auto lsVShader = std::make_unique<Shader>(ShaderType::VERT, (std::string)config["assets"]["lightSource"]["v"]);
+    auto lsFShader = std::make_unique<Shader>(ShaderType::FRAG, (std::string)config["assets"]["lightSource"]["f"]);
+    std::vector<std::unique_ptr<Shader>> lsShaders;
+    lsShaders.push_back(std::move(lsVShader));
+    lsShaders.push_back(std::move(lsFShader));
+    renderer.shaders[ShaderMode::LIGHT_SOURCE] = new Program(lsShaders);
+
     LOG_INFO("Application:: Shaders loaded");
 
     renderer.shadowWidth = config["renderer"]["shadowMap"]["width"];
@@ -273,13 +280,13 @@ void AppGui(R::OpenGLApplication &app, GLuint img)
     ImGui::NewFrame();
     int w, h;
     glfwGetWindowSize(app.appWindow, &w, &h);
-    ImGui::SetNextWindowSize(ImVec2(w, h));
+    // ImGui::SetNextWindowSize(ImVec2(w, h));
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     GuiWindow(
         "OpenGL Renderer",
         std::function([&app, img, w, h]() -> void {
             GuiGroupPanel(
-                "Menu",
+                "",
                 std::function([&app, img, w, h]() -> void {
                     if (ImGui::Button("Close App"))
                     {
@@ -304,19 +311,19 @@ void AppGui(R::OpenGLApplication &app, GLuint img)
                     GuiGroupPanel(
                         "Scene",
                         std::function([&app, img, w, h]() -> void {
-                            ImGui::Image((ImTextureID)img, ImVec2(3 * w / 4, 3 * h / 4), ImVec2(0, 1), ImVec2(1, 0));
+                            ImGui::Image((ImTextureID)img, ImVec2(3 * w / 5, 3 * h / 5), ImVec2(0, 1), ImVec2(1, 0));
                             glCheckError;
                         }),
                         ImVec2(0, h));
                 }));
-
+                // ImGui::SameLine();
             GuiGroupPanel(
-                "View matrix",
-                std::function([&app]() -> void {
-                    auto m = app.renderer.cam->getViewMatrix();
-                    for (int i = 0; i < 4; i++)
-                    {
-                        ImGui::Text("%f, %f, %f, %f", m[0][i], m[1][i], m[2][i], m[3][i]);
+                "Options",
+                std::function([&app, img]() -> void {
+                    for(int i = 0; i < app.renderer.scene->numLights; i++){
+                        ImGui::ColorEdit3("Light color", &app.renderer.scene->lights[i].color.x);
+                        ImGui::SliderFloat3("Light Pos", &app.renderer.scene->lights[i].position.x, -20.f, 20.f, "%f", 1.0f);
+                        ImGui::SliderFloat("Light emission", &app.renderer.scene->lights[i].emission, 0.f, 200.f, "%f", 1.0f);
                     }
                 }));
         }));

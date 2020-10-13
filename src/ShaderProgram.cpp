@@ -41,14 +41,14 @@ Shader::Shader(ShaderType type, std::string path){
     int success;
     GL(glGetShaderiv(ID, GL_COMPILE_STATUS, &success));
     if (!success){
-        LOG_ERR(toString(type) + " compilation failed")
+        LOG_ERR(toString(type) + " " + path + " compilation failed")
         char info[512];
         GL(glGetShaderInfoLog(ID, 512, NULL, info));
         LOG_ERR(info);
         BREAK_POINT;
         return;
     }
-    LOG_INFO(toString(type) + " successfully compiled")
+    LOG_INFO(toString(type) + " " + path + " successfully compiled")
     compilation_success = true;
     
 }

@@ -28,6 +28,10 @@
             "f": "assets/shaders/depth.frag",
             "g": "assets/shaders/depth.geom"
         },
+        "lightSource":{
+            "v": "assets/shaders/ls.vert",
+            "f": "assets/shaders/ls.frag"
+        },
         "scene": "assets/scenes/Sponza_Atrium_gltf/Sponza.gltf"
     },
     "fonts": {
