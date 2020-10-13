@@ -80,3 +80,17 @@ public:
     void with(void (*f)(Program*, std::unordered_map<std::string, std::any>), std::unordered_map<std::string, std::any> params);
 };
 
+inline void validateProgram(Program & p)
+{
+    GL(glValidateProgram(p.ID));
+    int success;
+    GL(glGetProgramiv(p.ID, GL_VALIDATE_STATUS, &success));
+    if(!success){
+        char info[512];
+        GL(glGetProgramInfoLog(p.ID, 512, NULL, info));
+        LOG_ERR("Program ID=" + std::to_string(p.ID) + " validation failed")
+        LOG_ERR(info)
+        BREAK_POINT;
+        return;
+    }
+}

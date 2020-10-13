@@ -6,14 +6,16 @@
         },
         "windowTitle": "Position Based Fluid",
         "resolution":{
-            "width": 512,
-            "height": 512
+            "width": 1920,
+            "height": 1080
         },
         "fov": 90.0,
         "shadowMap":{
             "width": 512,
             "height": 512
-        }
+        },
+        "znear": 0.01,
+        "zfar": 50.0
     },
     "assets":{
         "shaders":{

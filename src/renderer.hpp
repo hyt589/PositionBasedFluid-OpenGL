@@ -4,6 +4,7 @@
 #include "scene.hpp"
 #include "camera.hpp"
 #include "GLabstractions.hpp"
+// #include "app.hpp"
 
 class Renderer
 {
@@ -39,31 +40,59 @@ public:
     friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 };
 
-
+enum ShaderMode{
+    SHADOW_MAP, LIGHTING
+};
 
 namespace R
 {
     class Renderer
     {
     public:
-        virtual void renderPass(const Scene & s, const Camera & cam) = 0;
-        virtual void renderPassTex(const Scene & s, const Camera & cam, const I_GLtex & tex) = 0;
+        virtual void renderPass() = 0;
+        virtual void renderPassTex(const GLtex2D & tex) = 0;
     };
 
     class Ogl_PbrShadowmap_Renderer : Renderer
     {
     private:
     public:
-        GLFWwindow * appWindow;
         Program * shaderProgram;
-        glm::mat4 * mat_projection;
+        GLframebuffer * fb;
+        GLframebuffer * dfb[MAX_LIGHTS];
+        GLtexCubeMap * depthCubemap[MAX_LIGHTS];
+        GLrenderbuffer * rb;
+        Scene * scene;
+        Camera * cam;
+        int viewWidth, viewHeight, shadowWidth, shadowHeight;
+        float fov, znear, zfar;
+        std::unordered_map<ShaderMode, Program*> shaders;
+
         Ogl_PbrShadowmap_Renderer(){};
         ~Ogl_PbrShadowmap_Renderer(){
             // delete ggxLightingProgram;
             // delete shadowCubemapProgram;
             delete shaderProgram;
+            delete fb;
+            delete rb;
+            // delete scene;
+            delete cam;
         };
-        void renderPass(const Scene & s, const Camera & cam) override;
-        void renderPassTex(const Scene & s, const Camera & cam, const I_GLtex & tex) override;
+        void init(){
+            fb = new GLframebuffer;
+            rb = new GLrenderbuffer;
+            for (size_t i = 0; i < MAX_LIGHTS; i++)
+            {
+                dfb[i] = new GLframebuffer;
+                depthCubemap[i] = new GLtexCubeMap(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, shadowWidth, shadowHeight);
+            }
+            
+            configurShadowmap();
+        }
+        void renderPass() override;
+        void renderPassTex(const GLtex2D & tex) override;
+        void configurShader(ShaderMode mode, int light_pass = 0);
+        void configurBuffers(const GLtex2D & tex);
+        void configurShadowmap();
     };
 }

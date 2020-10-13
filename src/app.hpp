@@ -29,15 +29,18 @@ namespace R
     {
     private:
         bool isInit = false;
+        float dt;
     public:
         JSON config;
         Scene scene;
-        Camera *cam;
+        // Camera *cam;
         GLFWwindow *appWindow;
         Ogl_PbrShadowmap_Renderer renderer;
-        int viewWidth, viewHeight;
-        float fov;
-        std::unordered_map<std::string, Program*> shaders;
+        bool focused = false, mouseInit = false;
+        float lastCursorX, lastCursorY;
+        // int viewWidth, viewHeight;
+        // float fov, znear, zfar;
+        // std::unordered_map<ShaderMode, Program*> shaders;
         //load config;
         OpenGLApplication(JSON &j);
 
@@ -54,16 +57,8 @@ namespace R
 
         void guiInit();
 
-        // template <typename... Args>
-        // void guiRender(std::function<void(Args...)> guiFunc, Args & ... params)
-        // {
-        //     ImGui_ImplOpenGL3_NewFrame();
-        //     ImGui_ImplGlfw_NewFrame();
-        //     ImGui::NewFrame();
-        //     guiFunc(params...);
-        //     ImGui::Render();
-        //     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        // };
+        void processInput(GLFWwindow * window);
+
 
     };
 } // namespace R

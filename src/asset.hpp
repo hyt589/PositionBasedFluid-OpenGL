@@ -248,7 +248,7 @@ public:
 
 static uint TextureFromFile(std::string filename, std::string &dir)
 {
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     std::string path;
 #if defined(_WIN32) || defined(WIN32)
     path = dir + "\\" + filename;

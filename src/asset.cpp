@@ -33,6 +33,7 @@ void Mesh::Draw(Program &program, bool withTex){
 
     program.activate();
     GL(glBindVertexArray(VAO));
+    validateProgram(program);
     GL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0));
     GL(glBindVertexArray(0));
     program.deactivate();

@@ -82,7 +82,7 @@ Program::Program(std::vector<std::unique_ptr<Shader>> & shaders){
         return;
     }
     linking_success = true;
-    LOG_INFO("Program ID=" + std::to_string(ID) + " successfully linked")
+    LOG_INFO("Program ID=" + std::to_string(ID) + " successfully linked");
 }
 
 
