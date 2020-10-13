@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
 
     try
     {
-        R::OpenGLApplication app(config);
+        OpenGLApplication app(config);
         app.init();
         app.run();
     }

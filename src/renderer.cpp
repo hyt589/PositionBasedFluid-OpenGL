@@ -2,7 +2,7 @@
 #include "windowUtil.hpp"
 #include "gui.hpp"
 
-void R::Ogl_PbrShadowmap_Renderer::configurShadowmap()
+void Ogl_PbrShadowmap_Renderer::configurShadowmap()
 {
     for (int i = 0; i < MAX_LIGHTS; i++)
     {
@@ -20,7 +20,7 @@ void R::Ogl_PbrShadowmap_Renderer::configurShadowmap()
     }
 }
 
-void R::Ogl_PbrShadowmap_Renderer::renderPass()
+void Ogl_PbrShadowmap_Renderer::renderPass()
 {
     //render shadowmaps
     GL(glViewport(0, 0, shadowWidth, shadowHeight));
@@ -55,7 +55,7 @@ void R::Ogl_PbrShadowmap_Renderer::renderPass()
     }));
 }
 
-void R::Ogl_PbrShadowmap_Renderer::configurBuffers(const GLtex2D &target)
+void Ogl_PbrShadowmap_Renderer::configurBuffers(const GLtex2D &target)
 {
     // target.bind();
     fb->bindAndDo(std::function([this, &target]() -> void {
@@ -74,14 +74,14 @@ void R::Ogl_PbrShadowmap_Renderer::configurBuffers(const GLtex2D &target)
     // target.unbind();
 }
 
-void R::Ogl_PbrShadowmap_Renderer::renderPassTex(const GLtex2D &target)
+void Ogl_PbrShadowmap_Renderer::renderPassTex(const GLtex2D &target)
 {
     fb->bindAndDo(std::function([this]() -> void {
         renderPass();
     }));
 }
 
-void R::Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int i)
+void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int i)
 {
     if (!shaders.count(mode))
     {
@@ -152,7 +152,7 @@ void R::Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int i)
     }
 }
 
-void R::Ogl_PbrShadowmap_Renderer::renderLightSource(Light & ls)
+void Ogl_PbrShadowmap_Renderer::renderLightSource(Light & ls)
 {
     auto mat_model = glm::mat4(0);
     mat_model = glm::translate(mat_model, ls.position);

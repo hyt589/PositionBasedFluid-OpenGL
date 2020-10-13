@@ -4,38 +4,34 @@
 #include "renderer.hpp"
 #include "scene.hpp"
 
-namespace R
+class Application
 {
-    class Application
-    {
-    public:
-        virtual void init() = 0;
-        virtual void run() = 0;
-    };
+public:
+    virtual void init() = 0;
+    virtual void run() = 0;
+};
 
-    class OpenGLApplication : Application
-    {
-    private:
-        bool isInit = false;
-        float dt;
-    public:
-        JSON config;
-        Scene scene;
-        // Camera *cam;
-        GLFWwindow *appWindow;
-        Ogl_PbrShadowmap_Renderer renderer;
-        bool focused = false, mouseInit = false;
-        float lastCursorX, lastCursorY;
-        OpenGLApplication(JSON &j);
+class OpenGLApplication : Application
+{
+private:
+    bool isInit = false;
+    float dt;
 
-        void init() override;
+public:
+    JSON config;
+    Scene scene;
+    // Camera *cam;
+    GLFWwindow *appWindow;
+    Ogl_PbrShadowmap_Renderer renderer;
+    bool focused = false, mouseInit = false;
+    float lastCursorX, lastCursorY;
+    OpenGLApplication(JSON &j);
 
-        void run() override;
+    void init() override;
 
-        void guiInit();
+    void run() override;
 
-        void processInput(GLFWwindow * window);
+    void guiInit();
 
-
-    };
-} // namespace R
+    void processInput(GLFWwindow *window);
+};

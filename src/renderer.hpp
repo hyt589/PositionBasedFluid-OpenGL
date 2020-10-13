@@ -12,61 +12,58 @@ enum ShaderMode
     LIGHT_SOURCE
 };
 
-namespace R
+class Renderer
 {
-    class Renderer
+public:
+    virtual void renderPass() = 0;
+    virtual void renderPassTex(const GLtex2D &tex) = 0;
+};
+
+class Ogl_PbrShadowmap_Renderer : Renderer
+{
+private:
+public:
+    Program *shaderProgram;
+    GLframebuffer *fb;
+    GLframebuffer *dfb[MAX_LIGHTS];
+    GLtexCubeMap *depthCubemap[MAX_LIGHTS];
+    GLrenderbuffer *rb;
+    Scene *scene;
+    Camera *cam;
+    int viewWidth, viewHeight, shadowWidth, shadowHeight;
+    float fov, znear, zfar;
+    unsigned int sphereVAO = 0;
+    unsigned int indexCount;
+
+    std::unordered_map<ShaderMode, Program *> shaders;
+
+    Ogl_PbrShadowmap_Renderer(){};
+    ~Ogl_PbrShadowmap_Renderer()
     {
-    public:
-        virtual void renderPass() = 0;
-        virtual void renderPassTex(const GLtex2D &tex) = 0;
+        // delete ggxLightingProgram;
+        // delete shadowCubemapProgram;
+        delete shaderProgram;
+        delete fb;
+        delete rb;
+        // delete scene;
+        delete cam;
     };
-
-    class Ogl_PbrShadowmap_Renderer : Renderer
+    void init()
     {
-    private:
-    public:
-        Program *shaderProgram;
-        GLframebuffer *fb;
-        GLframebuffer *dfb[MAX_LIGHTS];
-        GLtexCubeMap *depthCubemap[MAX_LIGHTS];
-        GLrenderbuffer *rb;
-        Scene *scene;
-        Camera *cam;
-        int viewWidth, viewHeight, shadowWidth, shadowHeight;
-        float fov, znear, zfar;
-        unsigned int sphereVAO = 0;
-        unsigned int indexCount;
-
-        std::unordered_map<ShaderMode, Program *> shaders;
-
-        Ogl_PbrShadowmap_Renderer(){};
-        ~Ogl_PbrShadowmap_Renderer()
+        fb = new GLframebuffer;
+        rb = new GLrenderbuffer;
+        for (size_t i = 0; i < MAX_LIGHTS; i++)
         {
-            // delete ggxLightingProgram;
-            // delete shadowCubemapProgram;
-            delete shaderProgram;
-            delete fb;
-            delete rb;
-            // delete scene;
-            delete cam;
-        };
-        void init()
-        {
-            fb = new GLframebuffer;
-            rb = new GLrenderbuffer;
-            for (size_t i = 0; i < MAX_LIGHTS; i++)
-            {
-                dfb[i] = new GLframebuffer;
-                depthCubemap[i] = new GLtexCubeMap(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, shadowWidth, shadowHeight);
-            }
-
-            configurShadowmap();
+            dfb[i] = new GLframebuffer;
+            depthCubemap[i] = new GLtexCubeMap(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, shadowWidth, shadowHeight);
         }
-        void renderPass() override;
-        void renderPassTex(const GLtex2D &tex) override;
-        void configurShader(ShaderMode mode, int light_pass = 0);
-        void configurBuffers(const GLtex2D &tex);
-        void configurShadowmap();
-        void renderLightSource(Light & ls);
-    };
-} // namespace R
+
+        configurShadowmap();
+    }
+    void renderPass() override;
+    void renderPassTex(const GLtex2D &tex) override;
+    void configurShader(ShaderMode mode, int light_pass = 0);
+    void configurBuffers(const GLtex2D &tex);
+    void configurShadowmap();
+    void renderLightSource(Light &ls);
+};

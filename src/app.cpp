@@ -1,49 +1,47 @@
 #include "app.hpp"
 #include "gui.hpp"
 
-namespace R
+void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
 {
-    void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+
+    auto app = static_cast<OpenGLApplication *>(glfwGetWindowUserPointer(window));
+    if (app->focused)
     {
-
-        auto app = static_cast<R::OpenGLApplication *>(glfwGetWindowUserPointer(window));
-        if (app->focused)
+        if (!app->mouseInit)
         {
-            if (!app->mouseInit)
-            {
-                app->lastCursorX = xpos;
-                app->lastCursorY = ypos;
-                app->mouseInit = true;
-            }
-
-            float xoffset = xpos - app->lastCursorX;
-            float yoffset = app->lastCursorY - ypos;
             app->lastCursorX = xpos;
             app->lastCursorY = ypos;
-
-            xoffset *= app->renderer.cam->sensitivity;
-            yoffset *= app->renderer.cam->sensitivity;
-
-            app->renderer.cam->yaw += xoffset;
-            app->renderer.cam->pitch += yoffset;
-
-            if (app->renderer.cam->pitch > 89.f)
-            {
-                app->renderer.cam->pitch = 89.f;
-            }
-            if (app->renderer.cam->pitch < -89.f)
-            {
-                app->renderer.cam->pitch = -89.f;
-            }
-            glm::vec3 nextDir(
-                cos(glm::radians(app->renderer.cam->yaw)) * cos(glm::radians(app->renderer.cam->pitch)),
-                sin(glm::radians(app->renderer.cam->pitch)),
-                sin(glm::radians(app->renderer.cam->yaw)) * cos(glm::radians(app->renderer.cam->pitch)));
-
-            app->renderer.cam->dir = nextDir;
+            app->mouseInit = true;
         }
+
+        float xoffset = xpos - app->lastCursorX;
+        float yoffset = app->lastCursorY - ypos;
+        app->lastCursorX = xpos;
+        app->lastCursorY = ypos;
+
+        xoffset *= app->renderer.cam->sensitivity;
+        yoffset *= app->renderer.cam->sensitivity;
+
+        app->renderer.cam->yaw += xoffset;
+        app->renderer.cam->pitch += yoffset;
+
+        if (app->renderer.cam->pitch > 89.f)
+        {
+            app->renderer.cam->pitch = 89.f;
+        }
+        if (app->renderer.cam->pitch < -89.f)
+        {
+            app->renderer.cam->pitch = -89.f;
+        }
+        glm::vec3 nextDir(
+            cos(glm::radians(app->renderer.cam->yaw)) * cos(glm::radians(app->renderer.cam->pitch)),
+            sin(glm::radians(app->renderer.cam->pitch)),
+            sin(glm::radians(app->renderer.cam->yaw)) * cos(glm::radians(app->renderer.cam->pitch)));
+
+        app->renderer.cam->dir = nextDir;
     }
-} // namespace R
+}
+
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             unsigned int id,
@@ -133,8 +131,7 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
-
-R::OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
+OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
 {
     int gl_v_major = config["renderer"]["glVersion"]["major"];
     int gl_v_minor = config["renderer"]["glVersion"]["minor"];
@@ -206,7 +203,7 @@ R::OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
     LOG_INFO("Application:: Confiuration complete")
 }
 
-void R::OpenGLApplication::init()
+void OpenGLApplication::init()
 {
     //load scene;
     auto model = std::make_unique<Model>(config["assets"]["scene"]);
@@ -259,7 +256,7 @@ void R::OpenGLApplication::init()
     LOG_INFO("Application:: Initialization Complete");
 }
 
-void AppGui(R::OpenGLApplication &app, GLuint img)
+void AppGui(OpenGLApplication &app, GLuint img)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -319,7 +316,7 @@ void AppGui(R::OpenGLApplication &app, GLuint img)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void R::OpenGLApplication::run()
+void OpenGLApplication::run()
 {
     if (!isInit)
     {
@@ -365,7 +362,7 @@ void R::OpenGLApplication::run()
     glfwTerminate();
 }
 
-void R::OpenGLApplication::guiInit()
+void OpenGLApplication::guiInit()
 {
     IMGUI_CHECKVERSION();
     auto guiContext = ImGui::CreateContext();
@@ -381,7 +378,7 @@ void R::OpenGLApplication::guiInit()
     LOG_INFO("Application:: GUI initialized");
 }
 
-void R::OpenGLApplication::processInput(GLFWwindow *window)
+void OpenGLApplication::processInput(GLFWwindow *window)
 {
     Camera *cam = renderer.cam;
     if (focused)
