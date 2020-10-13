@@ -3,18 +3,6 @@
 #include "global.hpp"
 #include "renderer.hpp"
 #include "scene.hpp"
-class Application
-{
-private:
-    // std::unique_ptr<Renderer> renderer;
-    // std::unique_ptr<Scene> scene;
-    Renderer renderer;
-    Scene scene;
-
-public:
-    Application(JSON config);
-    void run();
-};
 
 namespace R
 {
@@ -38,21 +26,10 @@ namespace R
         Ogl_PbrShadowmap_Renderer renderer;
         bool focused = false, mouseInit = false;
         float lastCursorX, lastCursorY;
-        // int viewWidth, viewHeight;
-        // float fov, znear, zfar;
-        // std::unordered_map<ShaderMode, Program*> shaders;
-        //load config;
         OpenGLApplication(JSON &j);
 
-        //load scene;
-        //init cam;
-        //create window and gl contex;
-        //init ImGui
-        //init renderer;
         void init() override;
 
-        //while window should not close
-        //  render scene to a texture
         void run() override;
 
         void guiInit();

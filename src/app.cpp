@@ -133,20 +133,6 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
-Application::Application(JSON config) : renderer(Renderer(config))
-{
-    auto model = std::make_unique<Model>(config["assets"]["scene"]);
-    model->scale = 0.01f;
-    scene.addModel(glm::vec3(0.f), glm::vec3(0.f), std::move(model));
-    scene.addLight(glm::vec3(-1.0f, 18.0f, 1.0f), glm::vec3(1.f), 1500.f);
-}
-
-void Application::run()
-{
-    renderer.render(scene);
-}
-
-//==========================================================================
 
 R::OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
 {
@@ -316,11 +302,12 @@ void AppGui(R::OpenGLApplication &app, GLuint img)
                         }),
                         ImVec2(0, h));
                 }));
-                // ImGui::SameLine();
+            // ImGui::SameLine();
             GuiGroupPanel(
                 "Options",
                 std::function([&app, img]() -> void {
-                    for(int i = 0; i < app.renderer.scene->numLights; i++){
+                    for (int i = 0; i < app.renderer.scene->numLights; i++)
+                    {
                         ImGui::ColorEdit3("Light color", &app.renderer.scene->lights[i].color.x);
                         ImGui::SliderFloat3("Light Pos", &app.renderer.scene->lights[i].position.x, -20.f, 20.f, "%f", 1.0f);
                         ImGui::SliderFloat("Light emission", &app.renderer.scene->lights[i].emission, 0.f, 200.f, "%f", 1.0f);
