@@ -266,20 +266,14 @@ void AppGui(OpenGLApplication &app, GLuint img)
     // ImGui::SetNextWindowSize(ImVec2(w, h));
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     GuiWindow(
-        "OpenGL Renderer",
+        "Renderer",
         std::function([&app, img, w, h]() -> void {
             GuiGroupPanel(
-                "",
+                "View",
                 std::function([&app, img, w, h]() -> void {
                     if (ImGui::Button("Close App"))
                     {
                         glfwSetWindowShouldClose(app.appWindow, true);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Control Camera"))
-                    {
-                        app.focused = true;
-                        glfwSetInputMode(app.appWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("Shadow on"))
@@ -291,27 +285,68 @@ void AppGui(OpenGLApplication &app, GLuint img)
                     {
                         app.renderer.shaders[ShaderMode::LIGHTING]->setUniform("mode", 1, glUniform1i);
                     }
+                    ImGui::SameLine();
+                    ImGui::SliderFloat("FOV", &app.renderer.fov, 30, 120, "%f", 1.0f);
                     GuiGroupPanel(
                         "Scene",
                         std::function([&app, img, w, h]() -> void {
-                            ImGui::Image((ImTextureID)img, ImVec2(3 * w / 5, 3 * h / 5), ImVec2(0, 1), ImVec2(1, 0));
-                            glCheckError;
+                            if (ImGui::ImageButton((ImTextureID)img, ImVec2(0.7 * w, 0.7 * h), ImVec2(0, 1), ImVec2(1, 0)))
+                            {
+                                app.focused = true;
+                                glfwSetInputMode(app.appWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                            }
                         }),
                         ImVec2(0, h));
                 }));
             // ImGui::SameLine();
-            GuiGroupPanel(
-                "Options",
-                std::function([&app, img]() -> void {
-                    for (int i = 0; i < app.renderer.scene->numLights; i++)
-                    {
-                        ImGui::ColorEdit3("Light color", &app.renderer.scene->lights[i].color.x);
-                        ImGui::SliderFloat3("Light Pos", &app.renderer.scene->lights[i].position.x, -20.f, 20.f, "%f", 1.0f);
-                        ImGui::SliderFloat("Light emission", &app.renderer.scene->lights[i].emission, 0.f, 200.f, "%f", 1.0f);
-                    }
-                }));
+            
         }));
 
+    GuiWindow(
+        "Menu",
+        std::function([&app]()->void{
+
+            GuiGroupPanel(
+                "Options",
+                std::function([&app]() -> void {
+                    for (int i = 0; i < app.renderer.scene->numLights; i++)
+                    {
+                        GuiGroupPanel(
+                            ("Light " + std::to_string(i)).c_str(),
+                            std::function([&app, i]() -> void {
+                                ImGui::ColorEdit3(("Light " + std::to_string(i) + " color").c_str(), &app.renderer.scene->lights[i].color.x);
+                                ImGui::SliderFloat3(("Light " + std::to_string(i) + " pos").c_str(), &app.renderer.scene->lights[i].position.x, -20.f, 20.f, "%.3f", 1.0f);
+                                ImGui::SliderFloat(("Light " + std::to_string(i) + " emission").c_str(), &app.renderer.scene->lights[i].emission, 0.f, 200.f, "%.3f", 1.0f);
+                            }));
+                    }
+                }));
+
+            if(ImGui::Button("Add Light")){
+                ImGui::OpenPopup("New Light");
+            }
+
+            if(ImGui::BeginPopupModal("New Light"))
+            {
+                Light light;
+                light.position = glm::vec3(0);
+                light.color = glm::vec3(0);
+                light.emission = 0;
+                ImGui::Text("Creating a new light source...");
+                ImGui::Text("Are you sure?");
+                if(ImGui::Button("Cancel"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("Confirm"))
+                {
+                    app.renderer.scene->addLight(light);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        })
+    );
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

@@ -13,6 +13,17 @@ void Scene::addLight(glm::vec3 pos, glm::vec3 color, float em){
     numLights++;
 }
 
+void Scene::addLight(Light & l)
+{
+    if(numLights >= MAX_LIGHTS){
+        LOG_ERR("Exceeding max number of lights!")
+        return;
+    }
+    lights[numLights] = l;
+    numLights++;
+}
+
+
 void Scene::addModel(glm::vec3 pos, glm::vec3 dir, std::unique_ptr<Model> model){
     model->position = pos;
     model->orientation = dir;

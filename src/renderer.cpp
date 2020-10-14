@@ -81,7 +81,7 @@ void Ogl_PbrShadowmap_Renderer::renderPassTex(const GLtex2D &target)
     }));
 }
 
-void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int i)
+void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int l)
 {
     if (!shaders.count(mode))
     {
@@ -122,7 +122,7 @@ void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int i)
         float aspect = 1.0;
         auto shadowProj = glm::perspective(glm::radians(fov), 1.f, znear, zfar);
         shaderProgram->setUniform("far_plane", zfar, glUniform1f);
-        auto lightPos = scene->lights[i].position;
+        auto lightPos = scene->lights[l].position;
         shaderProgram->setUniform("lightPos", lightPos, glUniform3fv);
         std::vector<glm::mat4> shadowTransforms;
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
@@ -134,7 +134,7 @@ void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int i)
 
         for (int j = 0; j < 6; j++)
         {
-            shaderProgram->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[j], glUniformMatrix4fv);
+            shaderProgram->setUniform("shadowMatrices[" + std::to_string(j) + "]", shadowTransforms[j], glUniformMatrix4fv);
         }
         break;
     }
