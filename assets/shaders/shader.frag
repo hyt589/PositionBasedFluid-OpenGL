@@ -155,7 +155,10 @@ void main(){
     float metallic = texture(metallicRoughnessMap, uv).b;
     float roughness = texture(metallicRoughnessMap, uv).g;
     float ao = 1;
-    float alpha = pow(texture(albedoMap, uv).rgba, vec4(2.2)).a;
+    float alpha = texture(albedoMap, uv).a;
+    if(alpha < 0.1){
+        discard;
+    }
     vec3 N = getNormalFromMap();
     vec3 V = normalize(camPos - pos);
 
