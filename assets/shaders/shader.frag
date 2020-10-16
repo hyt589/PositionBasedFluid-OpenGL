@@ -201,7 +201,7 @@ void main(){
         {
             // Lo += r >= lightRange ? 0.0 : 1.0;
             // Lo += vec3(r/far_plane);
-            Lo += vec3(texture(depthCubeMap[i], -L).g);
+            Lo += vec3(texture(depthCubeMap[i], -L).r);
         }
         else if (mode % 5 == 4)
         {

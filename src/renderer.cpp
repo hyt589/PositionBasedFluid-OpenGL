@@ -52,10 +52,10 @@ void Ogl_PbrShadowmap_Renderer::renderPass()
         configurShader(ShaderMode::LIGHTING);
         scene->render(*shaderProgram, true);
         configurShader(ShaderMode::LIGHT_SOURCE);
-        // for(int i = 0; i < scene->numLights; i++)
-        // {
-        //     renderLightSource(scene->lights[i]);
-        // }
+        for(int i = 0; i < scene->numLights; i++)
+        {
+            renderLightSource(scene->lights[i]);
+        }
         GL(glDisable(GL_CULL_FACE));
         GL(glDisable(GL_DEPTH_TEST));
     }));
