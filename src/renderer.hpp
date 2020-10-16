@@ -58,12 +58,12 @@ public:
             depthCubemap[i] = new GLtexCubeMap(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, shadowWidth, shadowHeight);
         }
 
-        configurShadowmap();
+        configureShadowmap();
     }
     void renderPass() override;
     void renderPassTex(const GLtex2D &tex) override;
     void configurShader(ShaderMode mode, int light_pass = 0);
-    void configurBuffers(const GLtex2D &tex);
-    void configurShadowmap();
+    void configureBuffers(const GLtex2D &tex);
+    void configureShadowmap();
     void renderLightSource(Light &ls);
 };

@@ -205,12 +205,6 @@ OpenGLApplication::OpenGLApplication(JSON &j) : config(j)
 
 void OpenGLApplication::init()
 {
-    //load scene;
-    auto model = std::make_unique<Model>(config["assets"]["scene"]);
-    model->scale = 0.01f;
-    scene.addModel(glm::vec3(0.f), glm::vec3(0.f), std::move(model));
-    scene.addLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.f), 150.f);
-    renderer.scene = &scene;
 
     LOG_INFO("Application:: Scene loaded")
 
@@ -246,6 +240,13 @@ void OpenGLApplication::init()
     renderer.shaders[ShaderMode::LIGHT_SOURCE] = new Program(lsShaders);
 
     LOG_INFO("Application:: Shaders loaded");
+
+    //load scene;
+    auto model = std::make_unique<Model>(config["assets"]["scene"]);
+    model->scale = 0.01f;
+    scene.addModel(glm::vec3(0.f), glm::vec3(0.f), std::move(model));
+    scene.addLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.f), 150.f);
+    renderer.scene = &scene;
 
     renderer.shadowWidth = config["renderer"]["shadowMap"]["width"];
     renderer.shadowHeight = config["renderer"]["shadowMap"]["height"];
@@ -284,6 +285,16 @@ void AppGui(OpenGLApplication &app, GLuint img)
                     if (ImGui::Button("Shadow off"))
                     {
                         app.renderer.shaders[ShaderMode::LIGHTING]->setUniform("mode", 1, glUniform1i);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Shadow debug 1"))
+                    {
+                        app.renderer.shaders[ShaderMode::LIGHTING]->setUniform("mode", 3, glUniform1i);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Shadow debug 2"))
+                    {
+                        app.renderer.shaders[ShaderMode::LIGHTING]->setUniform("mode", 4, glUniform1i);
                     }
                     ImGui::SameLine();
                     ImGui::SliderFloat("FOV", &app.renderer.fov, 30, 120, "%f", 1.0f);
@@ -367,7 +378,7 @@ void OpenGLApplication::run()
     GLtex2D targetTex(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, renderer.viewWidth, renderer.viewHeight);
     // renderer.fb->unbind();
 
-    renderer.configurBuffers(targetTex);
+    renderer.configureBuffers(targetTex);
 
     // GL(glEnable(GL_DEPTH_TEST));
 

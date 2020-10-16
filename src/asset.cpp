@@ -24,8 +24,8 @@ void Mesh::Draw(Program &program, bool withTex){
     {
         std::set<std::string> textureTypes;
         for(size_t i = 0; i < textures.size(); i++){
-            GL(glActiveTexture(GL_TEXTURE0 + i + MAX_LIGHTS));
-            program.setUniform<GLint>(textures[i].type, i + MAX_LIGHTS, glUniform1i);
+            GL(glActiveTexture(GL_TEXTURE0 + i + MAX_LIGHTS * 2));
+            program.setUniform<GLint>(textures[i].type, i + MAX_LIGHTS * 2, glUniform1i);
             GL(glBindTexture(GL_TEXTURE_2D, textures[i].id));
         }
         GL(glActiveTexture(GL_TEXTURE0));

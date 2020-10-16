@@ -2,11 +2,13 @@
 #include "windowUtil.hpp"
 #include "gui.hpp"
 
-void Ogl_PbrShadowmap_Renderer::configurShadowmap()
+void Ogl_PbrShadowmap_Renderer::configureShadowmap()
 {
     for (int i = 0; i < MAX_LIGHTS; i++)
     {
         dfb[i]->bindAndDo(std::function([this, i]() -> void {
+            GL(glActiveTexture(GL_TEXTURE0 + i));
+            depthCubemap[i]->bind();
             GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap[i]->ID(), 0));
             GL(glDrawBuffer(GL_NONE));
             GL(glReadBuffer(GL_NONE));
@@ -23,17 +25,19 @@ void Ogl_PbrShadowmap_Renderer::configurShadowmap()
 void Ogl_PbrShadowmap_Renderer::renderPass()
 {
     //render shadowmaps
-    GL(glViewport(0, 0, shadowWidth, shadowHeight));
     for (size_t i = 0; i < scene->numLights; i++)
     {
         dfb[i]->bindAndDo(std::function([this, i]() -> void {
+            GL(glViewport(0, 0, shadowWidth, shadowHeight));
             GL(glEnable(GL_DEPTH_TEST));
-            GL(glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX));
-            GL(glClear(GL_DEPTH_BUFFER_BIT));
+            GL(glEnable(GL_CULL_FACE));
+            GL(glClearDepth(1.0));
+            GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
             configurShader(ShaderMode::SHADOW_MAP, i);
             scene->render(*shaderProgram, false);
 
+            GL(glDisable(GL_CULL_FACE));
             GL(glDisable(GL_DEPTH_TEST));
         }));
     }
@@ -42,20 +46,22 @@ void Ogl_PbrShadowmap_Renderer::renderPass()
     fb->bindAndDo(std::function([this]() -> void {
         GL(glViewport(0, 0, viewWidth, viewHeight));
         GL(glEnable(GL_DEPTH_TEST));
+        GL(glEnable(GL_CULL_FACE));
         GL(glClearColor(0.7f, 0.7f, 0.7f, 1.0f));
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         configurShader(ShaderMode::LIGHTING);
         scene->render(*shaderProgram, true);
         configurShader(ShaderMode::LIGHT_SOURCE);
-        for(int i = 0; i < scene->numLights; i++)
-        {
-            renderLightSource(scene->lights[i]);
-        }
+        // for(int i = 0; i < scene->numLights; i++)
+        // {
+        //     renderLightSource(scene->lights[i]);
+        // }
+        GL(glDisable(GL_CULL_FACE));
         GL(glDisable(GL_DEPTH_TEST));
     }));
 }
 
-void Ogl_PbrShadowmap_Renderer::configurBuffers(const GLtex2D &target)
+void Ogl_PbrShadowmap_Renderer::configureBuffers(const GLtex2D &target)
 {
     // target.bind();
     fb->bindAndDo(std::function([this, &target]() -> void {
@@ -111,8 +117,8 @@ void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int l)
 
         for (int j = 0; j < scene->numLights; j++)
         {
-            GL(glActiveTexture(GL_TEXTURE0 + j));
-            shaderProgram->setUniform("depthCubeMap[" + std::to_string(j) + "]", j, glUniform1i);
+            GL(glActiveTexture(GL_TEXTURE0 + j + MAX_LIGHTS));
+            shaderProgram->setUniform("depthCubeMap[" + std::to_string(j) + "]", j + MAX_LIGHTS, glUniform1i);
             depthCubemap[j]->bind();
         }
         break;
@@ -120,7 +126,7 @@ void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int l)
     case ShaderMode::SHADOW_MAP:
     {
         float aspect = 1.0;
-        auto shadowProj = glm::perspective(glm::radians(fov), 1.f, znear, zfar);
+        auto shadowProj = glm::perspective(glm::radians(90.f), 1.f, znear, zfar);
         shaderProgram->setUniform("far_plane", zfar, glUniform1f);
         auto lightPos = scene->lights[l].position;
         shaderProgram->setUniform("lightPos", lightPos, glUniform3fv);

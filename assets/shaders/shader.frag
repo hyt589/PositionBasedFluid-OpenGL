@@ -142,7 +142,7 @@ void main(){
         }
         else if (mode % 5 == 4)
         {
-            Lo += vec3(shadow);
+            Lo += vec3(1 - shadow);
         }
         // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * (1 - shadow);
     }
