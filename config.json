@@ -11,8 +11,8 @@
         },
         "fov": 60.0,
         "shadowMap":{
-            "width": 512,
-            "height": 512
+            "width": 1024,
+            "height": 1024
         },
         "znear": 0.01,
         "zfar": 100.0

@@ -27,6 +27,11 @@ uniform vec3 camPos;
 const float PI = 3.14159265359;
 
 uniform samplerCube depthCubeMap[MAX_LIGHT];
+// uniform samplerCube depthCubeMap0;
+// uniform samplerCube depthCubeMap1;
+// uniform samplerCube depthCubeMap2;
+// uniform samplerCube depthCubeMap3;
+
 
 uniform int mode;
 
@@ -97,7 +102,7 @@ vec3 gridSamplingDisk[20] = vec3[]
 );
 
 
-float ShadowCalculation(vec3 fragPos, int l)
+float ShadowCalculation(vec3 fragPos, uint l)
 {
     // get vector between fragment position and light position
     vec3 fragToLight = fragPos - lightPos[l];
@@ -166,7 +171,7 @@ void main(){
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < numLights; i++){
+    for(uint i = 0; i < numLights; i++){
         
         vec3 L = normalize(lightPos[i] - pos);
         vec3 H = normalize(V + L);
@@ -204,11 +209,11 @@ void main(){
         {
             // Lo += r >= lightRange ? 0.0 : 1.0;
             // Lo += vec3(r/far_plane);
-            Lo += vec3(texture(depthCubeMap[i], -L).r);
+            Lo += vec3(texture(depthCubeMap[i], -L).r) / numLights;
         }
         else if (mode % 5 == 4)
         {
-            Lo += vec3(1 - shadow);
+            Lo += vec3(1 - shadow) / numLights;
         }
         // Lo += (k_d * albedo / PI + specular) * radiance * NdotL * (1 - shadow);
     }

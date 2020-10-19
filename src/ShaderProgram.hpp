@@ -77,6 +77,13 @@ public:
         // LOG_INFO("Uniform '" + name + "' set")
     };
 
+    template<typename ... Args>
+    void activateAndDo(std::function<void(Args...)> f, Args ... params){
+        activate();
+        f(params ...);
+        deactivate();
+    };
+
     void with(void (*f)(Program*, std::unordered_map<std::string, std::any>), std::unordered_map<std::string, std::any> params);
 };
 

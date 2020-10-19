@@ -15,7 +15,6 @@ class OpenGLApplication : Application
 {
 private:
     bool isInit = false;
-    float dt;
 
 public:
     JSON config;
@@ -25,6 +24,7 @@ public:
     Ogl_PbrShadowmap_Renderer renderer;
     bool focused = false, mouseInit = false;
     float lastCursorX, lastCursorY;
+    float dt;
     OpenGLApplication(JSON &j);
 
     void init() override;

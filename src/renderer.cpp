@@ -47,12 +47,15 @@ void Ogl_PbrShadowmap_Renderer::renderPass()
         GL(glViewport(0, 0, viewWidth, viewHeight));
         GL(glEnable(GL_DEPTH_TEST));
         GL(glEnable(GL_CULL_FACE));
+        GL(glEnable(GL_MULTISAMPLE));
+        // GL(glEnable(GL_BLEND));
+        // GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         GL(glClearColor(0.7f, 0.7f, 0.7f, 1.0f));
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         configurShader(ShaderMode::LIGHTING);
         scene->render(*shaderProgram, true);
         configurShader(ShaderMode::LIGHT_SOURCE);
-        for(int i = 0; i < scene->numLights; i++)
+        for (int i = 0; i < scene->numLights; i++)
         {
             renderLightSource(scene->lights[i]);
         }
@@ -158,7 +161,7 @@ void Ogl_PbrShadowmap_Renderer::configurShader(ShaderMode mode, int l)
     }
 }
 
-void Ogl_PbrShadowmap_Renderer::renderLightSource(Light & ls)
+void Ogl_PbrShadowmap_Renderer::renderLightSource(Light &ls)
 {
     auto mat_model = glm::mat4(0);
     mat_model = glm::translate(mat_model, ls.position);
@@ -205,7 +208,7 @@ void Ogl_PbrShadowmap_Renderer::renderLightSource(Light & ls)
             {
                 for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
                 {
-                    indices.push_back(y       * (X_SEGMENTS + 1) + x);
+                    indices.push_back(y * (X_SEGMENTS + 1) + x);
                     indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
                 }
             }
@@ -214,7 +217,7 @@ void Ogl_PbrShadowmap_Renderer::renderLightSource(Light & ls)
                 for (int x = X_SEGMENTS; x >= 0; --x)
                 {
                     indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                    indices.push_back(y       * (X_SEGMENTS + 1) + x);
+                    indices.push_back(y * (X_SEGMENTS + 1) + x);
                 }
             }
             oddRow = !oddRow;
@@ -246,11 +249,11 @@ void Ogl_PbrShadowmap_Renderer::renderLightSource(Light & ls)
         GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
         float stride = (3 + 2 + 3) * sizeof(float);
         GL(glEnableVertexAttribArray(0));
-        GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0));
+        GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void *)0));
         GL(glEnableVertexAttribArray(1));
-        GL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float))));
+        GL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void *)(3 * sizeof(float))));
         GL(glEnableVertexAttribArray(2));
-        GL(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(5 * sizeof(float))));
+        GL(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void *)(5 * sizeof(float))));
     }
 
     GL(glBindVertexArray(sphereVAO));

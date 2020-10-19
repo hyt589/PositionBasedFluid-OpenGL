@@ -297,26 +297,33 @@ void AppGui(OpenGLApplication &app, GLuint img)
                         app.renderer.shaders[ShaderMode::LIGHTING]->setUniform("mode", 4, glUniform1i);
                     }
                     ImGui::SameLine();
-                    ImGui::SliderFloat("FOV", &app.renderer.fov, 30, 120, "%f", 1.0f);
+                    ImGui::SliderFloat("FOV", &app.renderer.fov, 30, 120, "%.3f°", 1.0f);
                     GuiGroupPanel(
                         "Scene",
-                        std::function([&app, img, w, h]() -> void {
-                            if (ImGui::ImageButton((ImTextureID)img, ImVec2(0.7 * w, 0.7 * h), ImVec2(0, 1), ImVec2(1, 0)))
+                        std::function([&app, img]() -> void {
+                            float aspect = (float)app.renderer.viewHeight / (float)app.renderer.viewWidth;
+                            ImVec2 size = ImGui::GetContentRegionAvail();
+                            ImGui::ImageButton((ImTextureID)img, ImVec2(size.x, size.x * aspect), ImVec2(0, 1), ImVec2(1, 0));
+                            if(ImGui::IsItemHovered() && !ImGui::IsItemActive()){
+                                ImGui::BeginTooltip();
+                                ImGui::Text("Hold down LMB to control camera");
+                                ImGui::EndTooltip();
+                            }
+                            if (ImGui::IsItemActive())
                             {
                                 app.focused = true;
-                                glfwSetInputMode(app.appWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                             }
-                        }),
-                        ImVec2(0, h));
+                            else
+                            {
+                                app.focused = false;
+                                app.mouseInit = false;
+                            }
+                        }));
                 }));
-            // ImGui::SameLine();
-            
         }));
-
     GuiWindow(
         "Menu",
-        std::function([&app]()->void{
-
+        std::function([&app]() -> void {
             GuiGroupPanel(
                 "Options",
                 std::function([&app]() -> void {
@@ -332,32 +339,29 @@ void AppGui(OpenGLApplication &app, GLuint img)
                     }
                 }));
 
-            if(ImGui::Button("Add Light")){
+            if (ImGui::Button("Add Light"))
+            {
                 ImGui::OpenPopup("New Light");
             }
 
-            if(ImGui::BeginPopupModal("New Light"))
+            if (ImGui::BeginPopupModal("New Light"))
             {
-                Light light;
-                light.position = glm::vec3(0);
-                light.color = glm::vec3(0);
-                light.emission = 0;
                 ImGui::Text("Creating a new light source...");
                 ImGui::Text("Are you sure?");
-                if(ImGui::Button("Cancel"))
+                if (ImGui::Button("Cancel"))
                 {
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::SameLine();
-                if(ImGui::Button("Confirm"))
+                if (ImGui::Button("Confirm"))
                 {
-                    app.renderer.scene->addLight(light);
+                    app.renderer.scene->addLight(glm::vec3(0), glm::vec3(0), 0);
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
             }
-        })
-    );
+        }));
+    ImGui::ShowMetricsWindow();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -413,7 +417,7 @@ void OpenGLApplication::guiInit()
     IMGUI_CHECKVERSION();
     auto guiContext = ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    io.IniFilename = NULL;
+    // io.IniFilename = NULL;
     std::string fontPath = config["fonts"]["firaMedium"];
     int fontSize = config["fontSize"];
     io.Fonts->AddFontFromFileTTF(fontPath.c_str(), fontSize);
@@ -472,9 +476,9 @@ void OpenGLApplication::processInput(GLFWwindow *window)
         }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
-        focused = false;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
+    // if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    // {
+    //     focused = false;
+    //     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    // }
 }
