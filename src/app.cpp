@@ -303,7 +303,7 @@ void AppGui(OpenGLApplication &app, GLuint img)
                         std::function([&app, img]() -> void {
                             float aspect = (float)app.renderer.viewHeight / (float)app.renderer.viewWidth;
                             ImVec2 size = ImGui::GetContentRegionAvail();
-                            ImGui::ImageButton((ImTextureID)img, ImVec2(size.x, size.x * aspect), ImVec2(0, 1), ImVec2(1, 0));
+                            ImGui::ImageButton(reinterpret_cast<ImTextureID>(img), ImVec2(size.x, size.x * aspect), ImVec2(0, 1), ImVec2(1, 0));
                             if(ImGui::IsItemHovered() && !ImGui::IsItemActive()){
                                 ImGui::BeginTooltip();
                                 ImGui::Text("Hold down LMB to control camera");

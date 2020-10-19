@@ -1,13 +1,12 @@
 #include "GLabstractions.hpp"
 
+//textures need to be "complete" before they can be attached to FBOs
 GLtex2D::GLtex2D(GLint internalFormat, GLenum format, GLenum type, GLsizei width, GLsizei height, GLint level, const GLvoid *data)
     : internalFormat(internalFormat), format(format), glDataType(type), width(width), height(height), level(level), data(data)
 {
 
     GL(glGenTextures(1, &id));
     bind();
-    // GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0));
-    // GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0));
     GL(glTexImage2D(GL_TEXTURE_2D, level, internalFormat,
                     width, height, 0,
                     format, type, data));
@@ -44,9 +43,6 @@ GLtexCubeMap::GLtexCubeMap(GLint internalFormat, GLenum format, GLenum type, GLs
     GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
     GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0));
     GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, level));
-    // GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
-    // GL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
-    GL(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
     unbind();
 }
 

@@ -48,8 +48,8 @@ void Ogl_PbrShadowmap_Renderer::renderPass()
         GL(glEnable(GL_DEPTH_TEST));
         GL(glEnable(GL_CULL_FACE));
         GL(glEnable(GL_MULTISAMPLE));
-        // GL(glEnable(GL_BLEND));
-        // GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        GL(glEnable(GL_BLEND));
+        GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         GL(glClearColor(0.7f, 0.7f, 0.7f, 1.0f));
         GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         configurShader(ShaderMode::LIGHTING);
@@ -257,6 +257,6 @@ void Ogl_PbrShadowmap_Renderer::renderLightSource(Light &ls)
     }
 
     GL(glBindVertexArray(sphereVAO));
-    GL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0));
+    GL(glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0));
     shaderProgram->deactivate();
 }
