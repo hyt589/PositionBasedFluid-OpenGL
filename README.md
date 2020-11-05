@@ -42,6 +42,8 @@ This project is still a work in progress.
 
 ### TODOS
 
-- Implement PBR shaders for rendering
 - Implement position based fluid
 - (stretch goal) Implement global illumination using Voxel Cone Tracing
+
+### Screenshot
+![](img/Screen%20Shot%202020-11-05%20at%209.13.37%20PM.png)
